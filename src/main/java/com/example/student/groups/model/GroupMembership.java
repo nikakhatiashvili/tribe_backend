@@ -11,6 +11,14 @@ public class GroupMembership {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private TribeUser user;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private TribeGroup group;
+
     public TribeUser getUser() {
         return user;
     }
@@ -27,13 +35,11 @@ public class GroupMembership {
         this.group = group;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private TribeUser user;
+    public Long getId() {
+        return id;
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    private TribeGroup group;
-
-    //getters and setters
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
