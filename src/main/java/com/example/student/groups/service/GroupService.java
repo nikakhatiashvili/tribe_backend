@@ -23,7 +23,7 @@ public class GroupService {
         this.userRepository = userRepository;
     }
 
-    public void createGroup(TribeGroup group) {
+    public void createGroup(TribeGroup group) throws AlreadyExistsException {
         TribeUser admin = userRepository.findUserByFirebaseId(group.getAdminId())
                 .orElseThrow(() -> new IllegalStateException("Admin not found"));
         if (admin.getGroupId() != null) {
@@ -34,7 +34,7 @@ public class GroupService {
         userRepository.save(admin);
     }
 
-    public List<TribeUser> getUsersInGroup(String firebaseId) {
+    public List<TribeUser> getUsersInGroup(String firebaseId) throws Exception {
         TribeUser user = userRepository.findUserByFirebaseId(firebaseId)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
         if (user.getGroupId() == null) {

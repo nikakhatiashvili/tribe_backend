@@ -24,12 +24,17 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public void registerNewStudent(@Valid @RequestBody TribeUser tribeUser) {
+    public void registerNewStudent(@Valid @RequestBody TribeUser tribeUser) throws Exception {
         userService.signUp(tribeUser);
     }
 
     @PostMapping("/adduser")
-    public void addUserToGroup(@RequestParam String firebaseId, @RequestParam String email) {
+    public void addUserToGroup(@RequestParam String firebaseId, @RequestParam String email)throws Exception  {
         userService.addUserToGroup(firebaseId, email);
+    }
+
+    @PostMapping("/removeuser")
+    public void removeUserFromGroup(@RequestParam String firebaseId, @RequestParam String email) throws Exception {
+        userService.removeUserFromGroup(firebaseId,email);
     }
 }

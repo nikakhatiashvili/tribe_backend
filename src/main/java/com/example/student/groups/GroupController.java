@@ -1,5 +1,6 @@
 package com.example.student.groups;
 
+import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupService;
 import com.example.student.student.TribeUser;
@@ -21,12 +22,12 @@ public class GroupController {
     }
 
     @PostMapping("/create")
-    public void createNewGroup(@Valid @RequestBody TribeGroup tribeGroup) {
+    public void createNewGroup(@Valid @RequestBody TribeGroup tribeGroup) throws Exception {
         groupService.createGroup(tribeGroup);
     }
 
     @GetMapping("/users")
-    public List<TribeUser> getUsersInGroup(@Valid @RequestParam String firebaseId) {
+    public List<TribeUser> getUsersInGroup(@Valid @RequestParam String firebaseId) throws Exception {
         return groupService.getUsersInGroup(firebaseId);
     }
 }

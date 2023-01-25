@@ -31,7 +31,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void signUp(TribeUser tribeUser) {
+    public void signUp(TribeUser tribeUser) throws Exception {
         boolean userExists = userRepository.findUserByFirebaseId(tribeUser.getFirebaseId()).isPresent()
                 || userRepository.getUserByEmail(tribeUser.getEmail()).isPresent();
         if (userExists) {
@@ -39,10 +39,12 @@ public class UserService {
         }
         userRepository.save(tribeUser);
     }
-
-    public void addUserToGroup(String adminFirebaseId, String userEmail) {
+    public void addUserToGroup(String adminFirebaseId, String userEmail)throws Exception  {
         TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
-                .orElseThrow(() -> new NotFoundException("Admin user not found or not in a group"));
+                .orElseThrow(() -> new NotFoundException("admin user not found"));
+        if(admin.getGroupId() == null){
+            throw new NotFoundException("user is not in a group");
+        }
 
         TribeGroup group = groupRepository.getGroupByAdminId(adminFirebaseId)
                 .orElseThrow(() -> new UnauthorizedException("Firebase ID does not match admin ID"));
@@ -56,4 +58,27 @@ public class UserService {
         userToAdd.setGroupId(admin.getGroupId());
         userRepository.save(userToAdd);
     }
+
+    public void removeUserFromGroup(String adminFirebaseId, String userEmail)throws Exception  {
+        TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
+                .orElseThrow(() -> new NotFoundException("Admin user not found"));
+        if(admin.getGroupId() == null){
+            throw new NotFoundException("Admin user is not in a group");
+        }
+
+        TribeGroup group = groupRepository.getGroupByAdminId(adminFirebaseId)
+                .orElseThrow(() -> new UnauthorizedException("Firebase ID does not match admin ID"));
+
+        TribeUser userToRemove = userRepository.getUserByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
+        if (userToRemove.getGroupId() == null) {
+            throw new NotFoundException("User is not in any group");
+        }
+        if (userToRemove.getGroupId() != admin.getGroupId()){
+            throw new UnauthorizedException("This user is not in your group");
+        }
+        userToRemove.setGroupId(null);
+        userRepository.save(userToRemove);
+    }
+
 }
