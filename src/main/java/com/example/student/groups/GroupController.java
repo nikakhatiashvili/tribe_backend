@@ -1,6 +1,5 @@
 package com.example.student.groups;
 
-import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupService;
 import com.example.student.student.TribeUser;
@@ -22,7 +21,7 @@ public class GroupController {
     }
 
     @PostMapping("/create")
-    public void createNewGroup(@Valid @RequestBody TribeGroup tribeGroup) throws AlreadyExistsException {
+    public void createNewGroup(@Valid @RequestBody TribeGroup tribeGroup) {
         groupService.createGroup(tribeGroup);
     }
 

@@ -49,7 +49,9 @@ public class TribeUser {
         this.email = email;
     }
 
-    public TribeUser() {}
+    public TribeUser() {
+    }
+
     public Long getGroupId() {
         return groupId;
     }

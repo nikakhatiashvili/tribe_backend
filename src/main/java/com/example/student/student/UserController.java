@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/adduser")
-    public void addUserToGroup(@RequestParam String firebaseId, @RequestParam String email){
-        userService.addUserToGroup(firebaseId,email);
+    public void addUserToGroup(@RequestParam String firebaseId, @RequestParam String email) {
+        userService.addUserToGroup(firebaseId, email);
     }
 }

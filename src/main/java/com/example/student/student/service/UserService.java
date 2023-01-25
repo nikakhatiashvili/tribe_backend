@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -33,36 +32,28 @@ public class UserService {
     }
 
     public void signUp(TribeUser tribeUser) {
-        Optional<TribeUser> userByFirebaseId = userRepository.findUserByFirebaseId(tribeUser.getFirebaseId());
-        Optional<TribeUser> userByEmail = userRepository.getUserByEmail(tribeUser.getEmail());
-        if (userByFirebaseId.isPresent() || userByEmail.isPresent()) {
+        boolean userExists = userRepository.findUserByFirebaseId(tribeUser.getFirebaseId()).isPresent()
+                || userRepository.getUserByEmail(tribeUser.getEmail()).isPresent();
+        if (userExists) {
             throw new AlreadyExistsException("user is taken");
-        } else {
-            userRepository.save(tribeUser);
         }
+        userRepository.save(tribeUser);
     }
 
-    public void addUserToGroup(String firebaseId, String email) {
-        Optional<TribeUser> user = userRepository.findUserByFirebaseId(firebaseId);
-        if (user.isPresent() && user.get().getGroupId() != null) {
-            Optional<TribeGroup> group = groupRepository.getGroupByAdminId(firebaseId);
-            if (group.isPresent() && user.get().getFirebaseId().equals(group.get().getAdminId())) {
-                Optional<TribeUser> userToAdd = userRepository.getUserByEmail(email);
-                if (userToAdd.isPresent()) {
-                    if (userToAdd.get().getGroupId() == null) {
-                        userToAdd.get().setGroupId(user.get().getGroupId());
-                        userRepository.save(userToAdd.get());
-                    } else {
-                        throw new AlreadyExistsException("User already belongs to a group");
-                    }
-                } else {
-                    throw new NotFoundException("User not found with email: " + email);
-                }
-            } else {
-                throw new UnauthorizedException("Firebase ID does not match admin ID");
-            }
-        } else {
-            throw new NotFoundException("user not found or not in a group");
+    public void addUserToGroup(String adminFirebaseId, String userEmail) {
+        TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
+                .orElseThrow(() -> new NotFoundException("Admin user not found or not in a group"));
+
+        TribeGroup group = groupRepository.getGroupByAdminId(adminFirebaseId)
+                .orElseThrow(() -> new UnauthorizedException("Firebase ID does not match admin ID"));
+
+        TribeUser userToAdd = userRepository.getUserByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
+        if (userToAdd.getGroupId() != null) {
+            throw new AlreadyExistsException("User already belongs to a group");
         }
+
+        userToAdd.setGroupId(admin.getGroupId());
+        userRepository.save(userToAdd);
     }
 }
