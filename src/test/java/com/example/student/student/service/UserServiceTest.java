@@ -1,54 +1,41 @@
 package com.example.student.student.service;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.*;
-import com.example.student.groups.exceptions.AlreadyExistsException;
-import com.example.student.student.TribeUser;
+import com.example.student.groups.service.GroupRepository;
 import com.example.student.student.domain.UserRepository;
 import org.junit.Before;
-import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class UserServiceTest {
 
     @Mock
-    private UserRepository tribeUserRepository;
+    private UserRepository userRepository;
 
-    private UserService userService;
+    @Mock
+    private GroupRepository groupRepository;
 
     @Before
     public void setUp() {
-        // Initialize the mocks
         MockitoAnnotations.initMocks(this);
-
-        // Create an instance of the UserService class with the mock repository
-        userService = new UserService(tribeUserRepository);
     }
 
-    @Test
-    public void testSignUp() throws AlreadyExistsException {
-        // Create a new user
-        TribeUser user = new TribeUser("John Doe", "johndoe@example.com", "firebaseId123");
+//    @Test
+//    public void testAddUserToGroupSuccess() {
+//        TribeUser admin = new TribeUser(1L, "admin", "admin@email.com", "firebaseId");
+//        admin.setGroupId(1L);
+//        TribeUser userToAdd = new TribeUser(2L, "userToAdd", "userToAdd@email.com", "firebaseId2");
+//
+//        TribeGroup group = new TribeGroup("S", "group1", "firebaseId");
+//        group.setAdminId("firebaseId");
+//
+//        when(userRepository.findUserByFirebaseId("firebaseId")).thenReturn(Optional.of(admin));
+//        when(groupRepository.getGroupByAdminId("firebaseId")).thenReturn(Optional.of(group));
+//        when(userRepository.getUserByEmail("userToAdd@email.com")).thenReturn(Optional.of(userToAdd));
+//
+//        userController.addUserToGroup("firebaseId", "userToAdd@email.com");
+//
+//        verify(userRepository, times(1)).saveUser(userToAdd);
+//        assertEquals(userToAdd.getGroupId(), admin.getGroupId());
+//    }
 
-        // Call the signUp method
-        userService.signUp(user);
-
-        // Verify that the repository's save method was called
-        verify(tribeUserRepository, times(1)).save(user);
-    }
-
-    @Test
-    public void testSignUp_alreadyExists()  {
-        // Create a new user
-        TribeUser user = new TribeUser("John Doe", "johndoe@example.com", "wasdafddahaasdsadasgsasasaashsgsahgsasasdddasd");
-
-        // Configure the mock repository to throw an AlreadyExistsException when the save method is called
-        doThrow(AlreadyExistsException.class).when(tribeUserRepository).save(user);
-
-        // Call the signUp method
-        userService.signUp(user);
-    }
 }

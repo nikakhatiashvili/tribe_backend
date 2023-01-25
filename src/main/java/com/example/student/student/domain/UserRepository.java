@@ -12,5 +12,7 @@ public interface UserRepository extends JpaRepository<TribeUser, Long> {
 
     Optional<TribeUser> findUserByFirebaseId(String firebaseId);
 
+    Optional<TribeUser> getUserByEmail(String email);
+
     List<TribeUser> findByGroupId(Long groupId);
 }

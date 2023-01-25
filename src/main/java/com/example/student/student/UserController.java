@@ -27,4 +27,9 @@ public class UserController {
     public void registerNewStudent(@Valid @RequestBody TribeUser tribeUser) {
         userService.signUp(tribeUser);
     }
+
+    @PostMapping("/adduser")
+    public void addUserToGroup(@RequestParam String firebaseId, @RequestParam String email){
+        userService.addUserToGroup(firebaseId,email);
+    }
 }
