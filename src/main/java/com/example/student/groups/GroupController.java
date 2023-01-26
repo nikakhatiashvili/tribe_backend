@@ -1,6 +1,5 @@
 package com.example.student.groups;
 
-import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupService;
 import com.example.student.student.TribeUser;
@@ -19,6 +18,12 @@ public class GroupController {
     @Autowired
     public GroupController(GroupService groupService) {
         this.groupService = groupService;
+    }
+
+
+    @GetMapping("/all")
+    public List<TribeGroup> getGroups() {
+        return groupService.getGroups();
     }
 
     @PostMapping("/create")

@@ -39,12 +39,10 @@ public class UserService {
         }
         userRepository.save(tribeUser);
     }
-    public void addUserToGroup(String adminFirebaseId, String userEmail)throws Exception  {
+
+    public void addUserToGroup(String adminFirebaseId, String userEmail) throws Exception {
         TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
-                .orElseThrow(() -> new NotFoundException("admin user not found"));
-        if(admin.getGroupId() == null){
-            throw new NotFoundException("user is not in a group");
-        }
+                .orElseThrow(() -> new NotFoundException("user with that firebaseid is not admin of any group"));
 
         TribeGroup group = groupRepository.getGroupByAdminId(adminFirebaseId)
                 .orElseThrow(() -> new UnauthorizedException("Firebase ID does not match admin ID"));
@@ -59,10 +57,10 @@ public class UserService {
         userRepository.save(userToAdd);
     }
 
-    public void removeUserFromGroup(String adminFirebaseId, String userEmail)throws Exception  {
+    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws Exception {
         TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
                 .orElseThrow(() -> new NotFoundException("Admin user not found"));
-        if(admin.getGroupId() == null){
+        if (admin.getGroupId() == null) {
             throw new NotFoundException("Admin user is not in a group");
         }
 
@@ -74,7 +72,7 @@ public class UserService {
         if (userToRemove.getGroupId() == null) {
             throw new NotFoundException("User is not in any group");
         }
-        if (userToRemove.getGroupId() != admin.getGroupId()){
+        if (userToRemove.getGroupId() != admin.getGroupId()) {
             throw new UnauthorizedException("This user is not in your group");
         }
         userToRemove.setGroupId(null);

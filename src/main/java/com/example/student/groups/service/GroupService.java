@@ -1,6 +1,7 @@
 package com.example.student.groups.service;
 
 import com.example.student.groups.exceptions.AlreadyExistsException;
+import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.student.TribeUser;
 import com.example.student.student.domain.UserRepository;
@@ -36,10 +37,14 @@ public class GroupService {
 
     public List<TribeUser> getUsersInGroup(String firebaseId) throws Exception {
         TribeUser user = userRepository.findUserByFirebaseId(firebaseId)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         if (user.getGroupId() == null) {
-            throw new IllegalStateException("User is not in any group");
+            throw new NotFoundException("User is not in any group");
         }
         return userRepository.findByGroupId(user.getGroupId());
+    }
+
+    public List<TribeGroup> getGroups() {
+        return groupRepository.findAll();
     }
 }
