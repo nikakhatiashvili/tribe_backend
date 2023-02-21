@@ -16,16 +16,21 @@ public class HabitController {
     public HabitController(HabitService habitService) {
         this.habitService = habitService;
     }
+//
+//    @PostMapping("/create")
+//    public void createNewHabit(@Valid @RequestBody TribeHabit tribeHabit, @RequestParam String firebaseId) throws Exception {
+//        habitService.createNewHabit(tribeHabit, firebaseId);
+//    }
 
-    @PostMapping("/create")
-    public void createNewHabit(@Valid @RequestBody TribeHabit tribeHabit, @RequestParam String firebaseId) throws Exception {
-        habitService.createNewHabit(tribeHabit, firebaseId);
-    }
+//    @GetMapping("/get_habits")
+//    public List<TribeHabit> getHabits(@RequestParam String firebaseId) throws Exception {
+//        return habitService.getHabits(firebaseId);
+//    }
+//    @DeleteMapping("/remove")
+//    public void removeHabit(@RequestParam String firebaseId, @RequestParam Long id) throws Exception {
+//        habitService.removeHabit(firebaseId, id,"");
+//    }
 
-    @GetMapping("/get_habits")
-    public List<TribeHabit> getHabits(@RequestParam String firebaseId) throws Exception {
-        return habitService.getHabits(firebaseId);
-    }
 }
 
 

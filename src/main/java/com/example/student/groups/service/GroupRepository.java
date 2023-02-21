@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface GroupRepository extends JpaRepository<TribeGroup, Long> {
+    Optional<TribeGroup> getGroupById(Long id);
     Optional<TribeGroup> getGroupByAdminId(String adminId);
 }

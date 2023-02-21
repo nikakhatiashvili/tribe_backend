@@ -40,43 +40,4 @@ public class UserService {
         userRepository.save(tribeUser);
     }
 
-    public void addUserToGroup(String adminFirebaseId, String userEmail) throws Exception {
-        TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
-                .orElseThrow(() -> new NotFoundException("user with that firebaseid is not admin of any group"));
-
-        TribeGroup group = groupRepository.getGroupByAdminId(adminFirebaseId)
-                .orElseThrow(() -> new UnauthorizedException("Firebase ID does not match admin ID"));
-
-        TribeUser userToAdd = userRepository.getUserByEmail(userEmail)
-                .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
-        if (userToAdd.getGroupId() != null) {
-            throw new AlreadyExistsException("User already belongs to a group");
-        }
-
-        userToAdd.setGroupId(admin.getGroupId());
-        userRepository.save(userToAdd);
-    }
-
-    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws Exception {
-        TribeUser admin = userRepository.findUserByFirebaseId(adminFirebaseId)
-                .orElseThrow(() -> new NotFoundException("Admin user not found"));
-        if (admin.getGroupId() == null) {
-            throw new NotFoundException("Admin user is not in a group");
-        }
-
-        TribeGroup group = groupRepository.getGroupByAdminId(adminFirebaseId)
-                .orElseThrow(() -> new UnauthorizedException("Firebase ID does not match admin ID"));
-
-        TribeUser userToRemove = userRepository.getUserByEmail(userEmail)
-                .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
-        if (userToRemove.getGroupId() == null) {
-            throw new NotFoundException("User is not in any group");
-        }
-        if (userToRemove.getGroupId() != admin.getGroupId()) {
-            throw new UnauthorizedException("This user is not in your group");
-        }
-        userToRemove.setGroupId(null);
-        userRepository.save(userToRemove);
-    }
-
 }

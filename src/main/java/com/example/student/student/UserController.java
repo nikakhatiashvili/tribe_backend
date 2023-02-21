@@ -28,13 +28,6 @@ public class UserController {
         userService.signUp(tribeUser);
     }
 
-    @PostMapping("/adduser")
-    public void addUserToGroup(@RequestParam String firebaseId, @RequestParam String email) throws Exception {
-        userService.addUserToGroup(firebaseId, email);
-    }
 
-    @PostMapping("/removeuser")
-    public void removeUserFromGroup(@RequestParam String firebaseId, @RequestParam String email) throws Exception {
-        userService.removeUserFromGroup(firebaseId, email);
-    }
+
 }

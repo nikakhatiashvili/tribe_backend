@@ -1,5 +1,6 @@
 package com.example.student.student;
 
+import com.example.student.groups.model.TribeGroup;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.*;
@@ -7,6 +8,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table
@@ -20,12 +24,16 @@ public class TribeUser {
     )
     private long id;
 
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long groupId;
-
     @NotNull
     @Size(min = 10, max = 100)
     private String firebaseId;
+
+
+    private boolean hasCreatedGroup;
+    @ElementCollection
+    @CollectionTable(name = "user_group", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "group_id")
+    private Set<Long> groups = new HashSet<>();
 
     @NotNull
     @Size(min = 3, max = 40)
@@ -36,11 +44,12 @@ public class TribeUser {
     @Email(message = "Invalid email address")
     private String email;
 
-    public TribeUser(long id, String name, String email, String firebaseId) {
+    public TribeUser(long id, String name, String email, String firebaseId,Boolean hasCreatedGroup) {
         this.firebaseId = firebaseId;
         this.id = id;
         this.name = name;
         this.email = email;
+        this.hasCreatedGroup = hasCreatedGroup;
     }
 
     public TribeUser(String name, String email, String firebaseId) {
@@ -52,12 +61,12 @@ public class TribeUser {
     public TribeUser() {
     }
 
-    public Long getGroupId() {
-        return groupId;
+    public void addGroup(Long groupId) {
+        groups.add(groupId);
     }
 
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
+    public void removeGroup(Long groupId) {
+        groups.remove(groupId);
     }
 
     @Override
@@ -65,12 +74,25 @@ public class TribeUser {
         return "Student{" +
                 "id=" + id +
                 ", firebase_id='" + firebaseId +
-                ", groupId='" + groupId +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
 
+    public Set<Long> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<Long> groups) {
+        this.groups = groups;
+    }
+    public boolean isHasCreatedGroup() {
+        return hasCreatedGroup;
+    }
+
+    public void setHasCreatedGroup(boolean hasCreatedGroup) {
+        this.hasCreatedGroup = hasCreatedGroup;
+    }
     public long getId() {
         return id;
     }
