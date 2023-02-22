@@ -1,11 +1,23 @@
 package com.example.student.student.service;
 
+import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.service.GroupRepository;
+import com.example.student.student.TribeUser;
 import com.example.student.student.domain.UserRepository;
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Optional;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
     @Mock
@@ -14,28 +26,58 @@ public class UserServiceTest {
     @Mock
     private GroupRepository groupRepository;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    public void signUp_whenUserDoesNotExist_shouldSaveUser() throws Exception {
+        // Arrange
+        TribeUser user = new TribeUser();
+        user.setFirebaseId("test-firebase-id");
+        user.setEmail("test-email@example.com");
+
+        when(userRepository.findUserByFirebaseId(user.getFirebaseId())).thenReturn(Optional.empty());
+        when(userRepository.getUserByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        // Act
+        userService.signUp(user);
+
+        // Assert
+        verify(userRepository).save(user);
     }
 
-//    @Test
-//    public void testAddUserToGroupSuccess() {
-//        TribeUser admin = new TribeUser(1L, "admin", "admin@email.com", "firebaseId");
-//        admin.setGroupId(1L);
-//        TribeUser userToAdd = new TribeUser(2L, "userToAdd", "userToAdd@email.com", "firebaseId2");
-//
-//        TribeGroup group = new TribeGroup("S", "group1", "firebaseId");
-//        group.setAdminId("firebaseId");
-//
-//        when(userRepository.findUserByFirebaseId("firebaseId")).thenReturn(Optional.of(admin));
-//        when(groupRepository.getGroupByAdminId("firebaseId")).thenReturn(Optional.of(group));
-//        when(userRepository.getUserByEmail("userToAdd@email.com")).thenReturn(Optional.of(userToAdd));
-//
-//        userController.addUserToGroup("firebaseId", "userToAdd@email.com");
-//
-//        verify(userRepository, times(1)).saveUser(userToAdd);
-//        assertEquals(userToAdd.getGroupId(), admin.getGroupId());
-//    }
+    @Test(expected = AlreadyExistsException.class)
+    public void signUp_whenUserExistsWithEmail_shouldThrowAlreadyExistsException() throws Exception {
+        // Arrange
+        TribeUser user = new TribeUser();
+        user.setFirebaseId("test-firebase-id");
+        user.setEmail("test-email@example.com");
+        user.setName("test-nika");
 
+        when(userRepository.findUserByFirebaseId(user.getFirebaseId())).thenReturn(Optional.empty());
+        when(userRepository.getUserByEmail(user.getEmail())).thenReturn(Optional.of(new TribeUser()));
+        System.out.println("test");
+        // Act
+        userService.signUp(user);
+
+        // Assert
+        // The test is expected to throw an AlreadyExistsException
+    }
+
+    @Test(expected = AlreadyExistsException.class)
+    public void signUp_whenUserExistsWithFirebaseId_shouldThrowAlreadyExistsException() throws Exception {
+        // Arrange
+        TribeUser user = new TribeUser();
+        user.setFirebaseId("test-firebase-id");
+        user.setEmail("test-email@example.com");
+        user.setName("test-nika");
+
+        when(userRepository.findUserByFirebaseId(user.getFirebaseId())).thenReturn(Optional.of(new TribeUser()));
+        when(userRepository.getUserByEmail(user.getEmail())).thenReturn(Optional.empty());
+        // Act
+        userService.signUp(user);
+        System.out.println("test");
+        // Assert
+        // The test is expected to throw an AlreadyExistsException
+    }
 }

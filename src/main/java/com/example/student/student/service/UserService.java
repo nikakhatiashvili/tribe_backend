@@ -1,9 +1,6 @@
 package com.example.student.student.service;
 
 import com.example.student.groups.exceptions.AlreadyExistsException;
-import com.example.student.groups.exceptions.NotFoundException;
-import com.example.student.groups.exceptions.UnauthorizedException;
-import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupRepository;
 import com.example.student.student.TribeUser;
 import com.example.student.student.domain.UserRepository;

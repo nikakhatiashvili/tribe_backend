@@ -36,14 +36,10 @@ public class GroupService {
 
         TribeUser user = userRepository.findUserByFirebaseId(group.getAdminId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
+        group.addMember(user);
 
-        TribeGroup newTribeGroup = new TribeGroup();
-        newTribeGroup.setTribeName(group.getTribeName());
-        newTribeGroup.setTribeDescription(group.getTribeDescription());
-        newTribeGroup.setAdminId(group.getAdminId());
-        newTribeGroup.addMember(user);
 
-        TribeGroup savedTribeGroup = groupRepository.save(newTribeGroup);
+        TribeGroup savedTribeGroup = groupRepository.save(group);
 
         user.addGroup(savedTribeGroup.getId());
         userRepository.save(user);
