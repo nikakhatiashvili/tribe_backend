@@ -55,6 +55,46 @@ public class GroupServiceTest {
     }
 
     @Test
+    public void testCreateGroup_UserAlreadyHasCreatedGroup(){
+        String adminId = "adminId";
+        TribeGroup tribeGroup = new TribeGroup();
+        tribeGroup.setTribeName("Test Group");
+        tribeGroup.setTribeDescription("This is a test group");
+        tribeGroup.setAdminId(adminId);
+
+        when(groupRepository.getGroupByAdminId(adminId)).thenReturn(Optional.of(tribeGroup));
+
+
+        assertThrows(AlreadyExistsException.class, () -> groupService.createGroup(tribeGroup));
+
+        verify(groupRepository, Mockito.times(1)).getGroupByAdminId(adminId);
+        verify(groupRepository, never()).save(any(TribeGroup.class));
+        verify(userRepository, never()).save(any(TribeUser.class));
+    }
+
+    @Test
+    public void testCreateGroup_UserNotFound() {
+
+        String adminId = "adminId";
+        TribeGroup tribeGroup = new TribeGroup();
+        tribeGroup.setTribeName("Test Group");
+        tribeGroup.setTribeDescription("This is a test group");
+        tribeGroup.setAdminId(adminId);
+
+        when(groupRepository.getGroupByAdminId(adminId)).thenReturn(Optional.empty());
+        when(userRepository.findUserByFirebaseId(adminId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            groupService.createGroup(tribeGroup);
+        });
+
+        verify(groupRepository, Mockito.times(1)).getGroupByAdminId(adminId);
+        verify(userRepository, Mockito.times(1)).findUserByFirebaseId(adminId);
+        verify(groupRepository, never()).save(any(TribeGroup.class));
+        verify(userRepository, never()).save(any(TribeUser.class));
+    }
+
+    @Test
     public void testInviteUserToGroup_Success() throws Exception {
 
         String adminFirebaseId = "adminId";
@@ -119,7 +159,6 @@ public class GroupServiceTest {
         String userEmail = "user@example.com";
 
         when(groupRepository.getGroupByAdminId(adminFirebaseId)).thenReturn(Optional.empty());
-
 
         assertThrows(NotFoundException.class, () -> groupService.inviteUserToGroup(adminFirebaseId, userEmail));
 
