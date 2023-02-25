@@ -1,6 +1,5 @@
 package com.example.student.groups.model;
 
-import com.example.student.student.TribeUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,31 +15,22 @@ public class TribeGroup {
     private Long id;
 
     @NotNull
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 40)
     private String tribeName;
 
     @ElementCollection
-    private Set<Long> members = new HashSet<>();
+    private Set<Long> tasksIds = new HashSet<>();
+
     @NotNull
     @Size(min = 10, max = 100)
     private String tribeDescription;
+
     @NotNull
-    @Size(min = 10, max = 100)
+    @Size(min = 10, max = 200)
     private String adminId;
 
     public TribeGroup() {
     }
-
-    public void addMember(TribeUser user) {
-        members.add(user.getId());
-        user.getGroups().add(this.getId());
-    }
-
-    public void removeMember(TribeUser user) {
-        members.remove(user.getId());
-        user.getGroups().remove(this.getId());
-    }
-
 
     public TribeGroup(Long id, String tribeName, String tribeDescription, String adminId) {
         this.id = id;
@@ -55,14 +45,13 @@ public class TribeGroup {
         this.adminId = adminId;
     }
 
-    public Set<Long> getMembers() {
-        return members;
+    public Set<Long> getTasks() {
+        return tasksIds;
     }
 
-    public void setMembers(Set<Long> members) {
-        this.members = members;
+    public void setTasks(Set<Long> tasks) {
+        this.tasksIds = tasks;
     }
-
 
     public Long getId() {
         return id;

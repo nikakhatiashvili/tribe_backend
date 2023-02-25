@@ -27,13 +27,22 @@ public class Invites {
     @Size(min = 10, max = 100)
     private String tribeDescription;
 
-    public Invites(String tribeName, String tribeDescription, String userFirebaseId) {
+    public Invites(String tribeName, String tribeDescription, String userFirebaseId,Long groupId) {
         this.tribeName = tribeName;
         this.tribeDescription = tribeDescription;
         this.userFirebaseId = userFirebaseId;
+        this.groupId = groupId;
     }
     public Invites(){
 
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
     }
 
     public long getId() {

@@ -4,6 +4,7 @@ import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.model.Invites;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupService;
+import com.example.student.student.TribeUser;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class GroupController {
     }
 
     @GetMapping("/invites")
-    public List<Invites> addUserToGroup(@RequestParam String firebaseId) throws Exception {
+    public List<Invites> addUserToGroup(@RequestParam String firebaseId){
         return groupService.getInvites(firebaseId);
     }
 
@@ -49,12 +50,12 @@ public class GroupController {
     }
 
     @PostMapping("/invite")
-    public void invite(@RequestParam Long id, @RequestParam Integer accept) throws NotFoundException {
-        groupService.invite(id,accept);
+    public void invite(@RequestParam Long id, @RequestParam Integer accept, @RequestParam String firebaseId) throws NotFoundException {
+        groupService.invite(id,accept,firebaseId);
     }
-//
-//    @GetMapping("/users")
-//    public List<TribeUser> getUsersInGroup(@Valid @RequestParam String firebaseId) throws Exception {
-//        return groupService.getUsersInGroup(firebaseId);
-//    }
+
+    @GetMapping("/users")
+    public List<TribeUser> getUsersInGroup(@Valid @RequestParam String firebaseId, @RequestParam Long id) throws Exception {
+        return groupService.getUsersInGroup(firebaseId,id);
+    }
 }
