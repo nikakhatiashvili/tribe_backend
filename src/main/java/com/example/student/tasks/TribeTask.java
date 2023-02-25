@@ -6,7 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table
@@ -34,6 +37,27 @@ public class TribeTask {
 
     private LocalDateTime resetTime;
 
+    @ElementCollection
+    private Map<String, LocalDateTime> completedTodayBy = new HashMap<>();
+
+    private LocalDateTime dateCompleted;
+
+    private String comment;
+    @Override
+    public String toString() {
+        return "{" +
+                "\"id\":\"" + id + "\"" +
+                ", \"name\":\"" + name + "\"" +
+                ", \"description\":\"" + description + "\"" +
+                ", \"assignedTo\":\"" + assignedTo + "\"" +
+                ", \"groupId\":\"" + groupId + "\"" +
+                ", \"resetTime\":\"" + resetTime + "\"" +
+                ", \"dateCompleted\":\"" + dateCompleted + "\"" +
+                ", \"comment\":\"" + comment + "\"" +
+                "}";
+    }
+
+
     public TribeTask(String name, String description, Long groupId) {
         this.name = name;
         this.description = description;
@@ -48,6 +72,40 @@ public class TribeTask {
 
     public TribeTask() {}
 
+    public Map<String, LocalDateTime> getCompletedTodayBy() {
+        return completedTodayBy;
+    }
+
+    public void setCompletedTodayBy(Map<String, LocalDateTime> completedTodayBy) {
+        this.completedTodayBy = completedTodayBy;
+    }
+
+    public void addCompletedTodayBy(String firebaseId, LocalDateTime dateCompleted) {
+        if (completedTodayBy == null) {
+            completedTodayBy = new HashMap<>();
+        }
+        completedTodayBy.put(firebaseId, dateCompleted);
+    }
+
+    public boolean isCompletedTodayBy(String firebaseId) {
+        return completedTodayBy != null && completedTodayBy.containsKey(firebaseId);
+    }
+
+    public LocalDateTime getDateCompleted() {
+        return dateCompleted;
+    }
+
+    public void setDateCompleted(LocalDateTime dateCompleted) {
+        this.dateCompleted = dateCompleted;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
     public List<String> getAssignedTo() {
         return assignedTo;
     }

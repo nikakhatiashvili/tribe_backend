@@ -1,6 +1,7 @@
 package com.example.student.student;
 
 import com.example.student.groups.model.TribeGroup;
+import com.example.student.student.data.TimeZoneConverter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.*;
@@ -11,6 +12,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimeZone;
 
 @Entity
 @Table
@@ -27,8 +29,6 @@ public class TribeUser {
     @NotNull
     @Size(min = 10, max = 100)
     private String firebaseId;
-
-
     private boolean hasCreatedGroup;
     @ElementCollection
     @CollectionTable(name = "user_group", joinColumns = @JoinColumn(name = "user_id"))
@@ -38,6 +38,17 @@ public class TribeUser {
     @NotNull
     @Size(min = 3, max = 40)
     private String name;
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
+    @Column(nullable = false)
+    private String timezone;
 
     @NotNull
     @NotEmpty(message = "email is required")
