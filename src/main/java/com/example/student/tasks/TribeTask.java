@@ -6,10 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Table
@@ -28,17 +25,19 @@ public class TribeTask {
     @Size(min = 10, max = 100)
     private String description;
 
-    @Transient
     @Email(message = "Invalid email address")
     private String email;
 
     @ElementCollection
     private List<String> assignedTo;
 
+    private Boolean forAll;
     private LocalDateTime resetTime;
 
     @ElementCollection
-    private Map<String, LocalDateTime> completedTodayBy = new HashMap<>();
+    @CollectionTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "user_id")
+    private Set<String> completedTodayBy = new HashSet<>();
 
     private LocalDateTime dateCompleted;
 
@@ -72,23 +71,27 @@ public class TribeTask {
 
     public TribeTask() {}
 
-    public Map<String, LocalDateTime> getCompletedTodayBy() {
+    public Boolean getForAll() {
+        return forAll;
+    }
+
+    public void setForAll(Boolean forAll) {
+        this.forAll = forAll;
+    }
+    public Set<String> getCompletedTodayBy() {
         return completedTodayBy;
     }
 
-    public void setCompletedTodayBy(Map<String, LocalDateTime> completedTodayBy) {
+    public void setCompletedTodayBy(Set<String> completedTodayBy) {
         this.completedTodayBy = completedTodayBy;
     }
 
-    public void addCompletedTodayBy(String firebaseId, LocalDateTime dateCompleted) {
-        if (completedTodayBy == null) {
-            completedTodayBy = new HashMap<>();
-        }
-        completedTodayBy.put(firebaseId, dateCompleted);
+    public void addCompletedTodayBy(String firebaseId) {
+        completedTodayBy.add(firebaseId);
     }
 
-    public boolean isCompletedTodayBy(String firebaseId) {
-        return completedTodayBy != null && completedTodayBy.containsKey(firebaseId);
+    public void removeCompletedTodayBy(String firebaseId) {
+        completedTodayBy.remove(firebaseId);
     }
 
     public LocalDateTime getDateCompleted() {

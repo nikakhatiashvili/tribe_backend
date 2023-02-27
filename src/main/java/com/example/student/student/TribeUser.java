@@ -1,9 +1,5 @@
 package com.example.student.student;
 
-import com.example.student.groups.model.TribeGroup;
-import com.example.student.student.data.TimeZoneConverter;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,7 +8,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TimeZone;
 
 @Entity
 @Table
@@ -39,15 +34,8 @@ public class TribeUser {
     @Size(min = 3, max = 40)
     private String name;
 
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public void setTimezone(String timezone) {
-        this.timezone = timezone;
-    }
-
-    @Column(nullable = false)
+    @NotEmpty
+    @NotNull
     private String timezone;
 
     @NotNull
@@ -72,6 +60,14 @@ public class TribeUser {
     public TribeUser() {
     }
 
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
     public void addGroup(Long groupId) {
         groups.add(groupId);
     }
@@ -89,7 +85,6 @@ public class TribeUser {
                 ", email='" + email + '\'' +
                 '}';
     }
-
     public Set<Long> getGroups() {
         return groups;
     }
