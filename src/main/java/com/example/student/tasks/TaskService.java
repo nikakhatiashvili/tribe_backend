@@ -43,18 +43,13 @@ public class TaskService {
 
     @Scheduled(cron = "0 0 * * * *") // Run every hour at minute 0
     public void resetTasks() {
-        System.out.println("the resetTasks run happend");
-        // Get all users
         List<TribeUser> users = userRepository.findAll();
-        System.out.println(users);
-        // Loop over each user
+
         for (TribeUser user : users) {
             ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of(user.getTimezone()));
             LocalTime localTime = zonedDateTime.toLocalTime();
 
             if (localTime.isAfter(LocalTime.parse("23:50")) || localTime.isBefore(LocalTime.parse("00:20"))) {
-                System.out.println("inside the if statement");
-                // Reset the tasks for this user
                 List<TribeTask> tasks = getAllTasksForUserInGroups(user);
                 System.out.println(tasks);
                 for (TribeTask task : tasks) {
@@ -115,33 +110,27 @@ public class TaskService {
         TribeUser user = findUserByFirebaseId(firebaseId);
         TribeTask task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
 
-        // Check if the task belongs to the user's group
         TribeGroup taskGroup = groupRepository.findById(task.getGroupId()).orElseThrow(() -> new NotFoundException("Group not found"));
         if (!user.getGroups().contains(taskGroup.getId())) {
             throw new UnauthorizedException("User is not authorized to complete this task");
         }
 
-        // Check if the user has already completed the task today
-        String firebaseIdStr = String.valueOf(firebaseId);
         Set<String> completedTodayBy = task.getCompletedTodayBy();
-        if (completedTodayBy.contains(firebaseIdStr)) {
+        if (completedTodayBy.contains(firebaseId)) {
             throw new AlreadyExistsException("Task has already been completed by this user today");
         }
 
-        // Add the user's firebaseId to the completedTodayBy map
         completedTodayBy.add(firebaseId);
 
-        // Save the updated task in the database
         taskRepository.save(task);
 
-        // Create a new CompletedTask object and save it to the database
         LocalDateTime completedTime = LocalDateTime.now();
-        CompletedTask completedTask = new CompletedTask(firebaseIdStr, taskId, completedTime, comment);
+        CompletedTask completedTask = new CompletedTask(firebaseId, taskId, completedTime, comment);
         completedTaskRepository.save(completedTask);
     }
 
     public List<CompletedTask> getCompletedTasks(String firebaseId) {
-        return completedTaskRepository.findAll();
+        return completedTaskRepository.findAllByUserId(firebaseId);
     }
 
     private TribeGroup getGroupByAdminId(String adminFirebaseId) throws NotFoundException {
