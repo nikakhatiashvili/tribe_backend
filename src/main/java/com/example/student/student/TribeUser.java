@@ -24,7 +24,9 @@ public class TribeUser {
     @NotNull
     @Size(min = 10, max = 100)
     private String firebaseId;
+
     private boolean hasCreatedGroup;
+
     @ElementCollection
     @ManyToOne(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_group", joinColumns = @JoinColumn(name = "user_id"))

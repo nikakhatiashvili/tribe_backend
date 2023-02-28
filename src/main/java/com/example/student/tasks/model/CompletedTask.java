@@ -1,5 +1,7 @@
 package com.example.student.tasks.model;
 
+
+
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -13,6 +15,24 @@ public class CompletedTask {
 
     @Column(name = "user_id")
     private String userId;
+
+    @Column(name = "task_id")
+    private Long taskId;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    @Column(name = "comment")
+    private String comment;
+
+    public CompletedTask() {}
+
+    public CompletedTask(String userId, Long taskId, LocalDateTime completedAt, String comment) {
+        this.userId = userId;
+        this.taskId = taskId;
+        this.completedAt = completedAt;
+        this.comment = comment;
+    }
 
     public Long getId() {
         return id;
@@ -53,25 +73,6 @@ public class CompletedTask {
     public void setComment(String comment) {
         this.comment = comment;
     }
-
-    @Column(name = "task_id")
-    private Long taskId;
-
-    @Column(name = "completed_at")
-    private LocalDateTime completedAt;
-
-    @Column(name = "comment")
-    private String comment;
-
-    public CompletedTask() {}
-
-    public CompletedTask(String userId, Long taskId, LocalDateTime completedAt, String comment) {
-        this.userId = userId;
-        this.taskId = taskId;
-        this.completedAt = completedAt;
-        this.comment = comment;
-    }
-
 
 }
 

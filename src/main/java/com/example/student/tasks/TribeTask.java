@@ -43,6 +43,7 @@ public class TribeTask {
     private List<String> assignedTo;
 
     private Boolean forAll;
+
     private LocalDateTime resetTime;
 
     @ElementCollection

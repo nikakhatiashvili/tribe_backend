@@ -8,7 +8,6 @@ import com.example.student.groups.service.GroupRepository;
 import com.example.student.student.TribeUser;
 import com.example.student.student.domain.UserRepository;
 import com.example.student.tasks.model.CompletedTask;
-import com.example.student.tasks.model.CompletedTaskInfo;
 import com.example.student.tasks.model.GroupTasksResponse;
 import com.example.student.tasks.model.TasksResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,9 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final UserRepository userRepository;
+
     private final GroupRepository groupRepository;
+
     private final TaskRepository taskRepository;
 
     private final CompletedTaskRepository completedTaskRepository;
@@ -41,7 +42,7 @@ public class TaskService {
         this.completedTaskRepository = completedTaskRepository;
     }
 
-    @Scheduled(cron = "0 0 * * * *") // Run every hour at minute 0
+    @Scheduled(cron = "0 0 * * * *")
     public void resetTasks() {
         List<TribeUser> users = userRepository.findAll();
 
@@ -147,5 +148,5 @@ public class TaskService {
         return userRepository.getUserByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
     }
-}
 
+}

@@ -20,14 +20,8 @@ public class UserLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // read the user details from the CSV file
         List<TribeUser> users = readUsersFromCsvFile(CSV_FILE_PATH);
-        System.out.println(users);
-        // save the users to the database
         userRepository.saveAll(users);
-
-        // print the saved users
-        System.out.println(userRepository.findAll());
     }
 
     private List<TribeUser> readUsersFromCsvFile(String csvFilePath) throws IOException {
@@ -50,7 +44,6 @@ public class UserLoader implements CommandLineRunner {
 
             users.add(user);
         }
-
         bufferedReader.close();
 
         return users;

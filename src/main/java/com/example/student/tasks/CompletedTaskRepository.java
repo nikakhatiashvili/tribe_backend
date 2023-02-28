@@ -9,6 +9,5 @@ import java.util.List;
 @Repository
 public interface CompletedTaskRepository extends JpaRepository<CompletedTask, Long> {
 
-
     List<CompletedTask> findAllByUserId(String userId);
 }

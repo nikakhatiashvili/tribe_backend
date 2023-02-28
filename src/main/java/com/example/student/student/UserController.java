@@ -28,6 +28,4 @@ public class UserController {
         userService.signUp(tribeUser);
     }
 
-
-
 }
