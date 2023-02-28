@@ -39,16 +39,14 @@ public class TribeTask {
     @Email(message = "Invalid email address")
     private String email;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> assignedTo;
 
     private Boolean forAll;
 
     private LocalDateTime resetTime;
 
-    @ElementCollection
-    @CollectionTable(name = "task_users", joinColumns = @JoinColumn(name = "task_id"))
-    @Column(name = "user_id")
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> completedTodayBy = new HashSet<>();
 
     private LocalDateTime dateCompleted;

@@ -27,10 +27,7 @@ public class TribeUser {
 
     private boolean hasCreatedGroup;
 
-    @ElementCollection
-    @ManyToOne(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_group", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "group_id")
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<Long> groups = new HashSet<>();
 
     @NotNull

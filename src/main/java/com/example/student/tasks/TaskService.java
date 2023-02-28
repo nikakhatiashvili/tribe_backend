@@ -50,7 +50,7 @@ public class TaskService {
             ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of(user.getTimezone()));
             LocalTime localTime = zonedDateTime.toLocalTime();
 
-            if (localTime.isAfter(LocalTime.parse("23:50")) || localTime.isBefore(LocalTime.parse("00:20"))) {
+            if (localTime.isAfter(LocalTime.parse("23:50")) || localTime.isBefore(LocalTime.parse("00:50"))) {
                 List<TribeTask> tasks = getAllTasksForUserInGroups(user);
                 System.out.println(tasks);
                 for (TribeTask task : tasks) {
@@ -95,7 +95,6 @@ public class TaskService {
             GroupTasksResponse groupTasksResponse = new GroupTasksResponse(group.getTribeName(), groupTasksList);
             groupTasks.add(groupTasksResponse);
         }
-
         return new TasksResponse(groupTasks);
     }
     public List<TribeTask> getAllTasksForUserInGroups(TribeUser user) {
