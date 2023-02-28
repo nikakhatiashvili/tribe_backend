@@ -26,6 +26,7 @@ public class TribeUser {
     private String firebaseId;
     private boolean hasCreatedGroup;
     @ElementCollection
+    @ManyToOne(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_group", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "group_id")
     private Set<Long> groups = new HashSet<>();

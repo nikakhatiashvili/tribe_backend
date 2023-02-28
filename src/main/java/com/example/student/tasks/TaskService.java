@@ -1,5 +1,6 @@
 package com.example.student.tasks;
 
+import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.exceptions.UnauthorizedException;
 import com.example.student.groups.model.TribeGroup;
@@ -7,12 +8,14 @@ import com.example.student.groups.service.GroupRepository;
 import com.example.student.student.TribeUser;
 import com.example.student.student.domain.UserRepository;
 import com.example.student.tasks.model.CompletedTask;
+import com.example.student.tasks.model.CompletedTaskInfo;
 import com.example.student.tasks.model.GroupTasksResponse;
 import com.example.student.tasks.model.TasksResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,18 +41,31 @@ public class TaskService {
         this.completedTaskRepository = completedTaskRepository;
     }
 
-//    @Scheduled(fixedRate = 60 * 60 * 1000) // run every hour
-//    public void resetTasks() {
-//
-//    }
+    @Scheduled(cron = "0 0 * * * *") // Run every hour at minute 0
+    public void resetTasks() {
+        System.out.println("the resetTasks run happend");
+        // Get all users
+        List<TribeUser> users = userRepository.findAll();
+        System.out.println(users);
+        // Loop over each user
+        for (TribeUser user : users) {
+            ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of(user.getTimezone()));
+            LocalTime localTime = zonedDateTime.toLocalTime();
 
-    //    @Scheduled(fixedRate = 60000) // Run every minute
-//    public void resetTasksForAllUsers() {
-//        List<TribeUser> users = userRepository.findAll();
-//        for (TribeUser user : users) {
-//            ResetTasksForUsers(user);
-//        }
-//    }
+            if (localTime.isAfter(LocalTime.parse("23:50")) || localTime.isBefore(LocalTime.parse("00:20"))) {
+                System.out.println("inside the if statement");
+                // Reset the tasks for this user
+                List<TribeTask> tasks = getAllTasksForUserInGroups(user);
+                System.out.println(tasks);
+                for (TribeTask task : tasks) {
+                    System.out.println(task.getCompletedTodayBy());
+                    task.getCompletedTodayBy().remove(user.getFirebaseId());
+                    taskRepository.save(task);
+                }
+            }
+        }
+    }
+
     public void createTask(String firebaseId, TribeTask tribeTask) throws NotFoundException, UnauthorizedException {
         TribeGroup group = getGroupByAdminId(firebaseId);
 
@@ -74,7 +90,7 @@ public class TaskService {
         List<TribeGroup> groups = groupRepository.findAllById(user.getGroups());
 
         List<TribeTask> tasks = getAllTasksForUserInGroups(user);
-
+        System.out.println(tasks);
         List<GroupTasksResponse> groupTasks = new ArrayList<>();
         for (TribeGroup group : groups) {
             List<TribeTask> groupTasksList = tasks.stream()
@@ -95,7 +111,7 @@ public class TaskService {
         return tasks;
     }
 
-    public void completeTask(String firebaseId, long taskId, String comment) throws NotFoundException, UnauthorizedException {
+    public void completeTask(String firebaseId, long taskId, String comment) throws NotFoundException, UnauthorizedException, AlreadyExistsException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         TribeTask task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
 
@@ -109,17 +125,17 @@ public class TaskService {
         String firebaseIdStr = String.valueOf(firebaseId);
         Set<String> completedTodayBy = task.getCompletedTodayBy();
         if (completedTodayBy.contains(firebaseIdStr)) {
-            throw new IllegalArgumentException("Task has already been completed by this user today");
+            throw new AlreadyExistsException("Task has already been completed by this user today");
         }
 
         // Add the user's firebaseId to the completedTodayBy map
-        LocalDateTime completedTime = LocalDateTime.now();
-        completedTodayBy.add(firebaseIdStr);
+        completedTodayBy.add(firebaseId);
 
         // Save the updated task in the database
         taskRepository.save(task);
 
         // Create a new CompletedTask object and save it to the database
+        LocalDateTime completedTime = LocalDateTime.now();
         CompletedTask completedTask = new CompletedTask(firebaseIdStr, taskId, completedTime, comment);
         completedTaskRepository.save(completedTask);
     }

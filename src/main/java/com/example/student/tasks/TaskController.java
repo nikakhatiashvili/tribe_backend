@@ -1,5 +1,6 @@
 package com.example.student.tasks;
 
+import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.exceptions.UnauthorizedException;
 import com.example.student.tasks.model.CompletedTask;
@@ -33,8 +34,8 @@ public class TaskController {
         return taskService.getTasksForUserInGroup(firebaseId);
     }
 
-    @RequestMapping(value = "/complete_task", method = RequestMethod.PUT)
-    public ResponseEntity<String> completeTask(@RequestParam String firebaseId, @RequestParam long taskId, @RequestParam String comment) throws UnauthorizedException {
+    @PostMapping("/complete_task")
+    public ResponseEntity<String> completeTask(@RequestParam String firebaseId, @RequestParam long taskId, @RequestParam String comment){
         try {
             taskService.completeTask(firebaseId, taskId,comment);
             return ResponseEntity.ok("Task completed successfully");
@@ -42,6 +43,10 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return   ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
