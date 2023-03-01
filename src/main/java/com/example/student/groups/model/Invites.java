@@ -20,7 +20,7 @@ public class Invites {
     @Size(min = 10, max = 100)
     private String userFirebaseId;
     @NotNull
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 40)
     private String tribeName;
 
     @NotNull

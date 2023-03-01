@@ -18,7 +18,7 @@ public class TribeGroup {
     @Size(min = 3, max = 40)
     private String tribeName;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<Long> tasksIds = new HashSet<>();
 
     @NotNull

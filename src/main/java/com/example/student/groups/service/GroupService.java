@@ -17,9 +17,7 @@ import java.util.Objects;
 public class GroupService {
 
     private final GroupRepository groupRepository;
-
     private final UserRepository userRepository;
-
     private final InviteRepository inviteRepository;
 
     @Autowired
@@ -40,7 +38,6 @@ public class GroupService {
         user.addGroup(savedTribeGroup.getId());
         userRepository.save(user);
     }
-
 
     public List<TribeGroup> getGroups() {
         return groupRepository.findAll();
@@ -69,13 +66,15 @@ public class GroupService {
         if (userToAdd.getGroups().contains(group.getId())) {
             throw new AlreadyExistsException("User already belongs to this group");
         }
-
-        Invites newInvite = new Invites(group.getTribeName(), group.getTribeDescription(), userToAdd.getFirebaseId(), group.getId());
+        Invites newInvite = new Invites(
+                group.getTribeName(), group.getTribeDescription(), userToAdd.getFirebaseId(), group.getId());
         inviteRepository.save(newInvite);
     }
 
     public void invite(Long id, Integer accept, String firebaseId) throws NotFoundException {
-        Invites invite = inviteRepository.findInviteById(id).orElseThrow(() -> new NotFoundException("invite not found"));
+        Invites invite = inviteRepository.
+                findInviteById(id).orElseThrow(() -> new NotFoundException("invite not found"));
+
         if (!Objects.equals(invite.getUserFirebaseId(), firebaseId))
             throw new NotFoundException("user with this invite not found");
         if (accept == 1) {
@@ -94,12 +93,11 @@ public class GroupService {
         userRepository.save(userToAdd);
     }
 
-
     public List<TribeUser> getUsersInGroup(String firebaseId, Long id) throws Exception {
         TribeUser user = findUserByFirebaseId(firebaseId);
-        if (user.getGroups().contains(id)){
+        if (user.getGroups().contains(id)) {
             return userRepository.findByGroupsContaining(id);
-        }else throw new UnauthorizedException("you dont have access to this");
+        } else throw new UnauthorizedException("you dont have access to this");
     }
 
     private TribeGroup getGroupByAdminId(String adminFirebaseId) throws NotFoundException {

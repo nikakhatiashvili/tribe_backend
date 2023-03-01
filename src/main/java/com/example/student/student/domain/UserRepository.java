@@ -16,5 +16,4 @@ public interface UserRepository extends JpaRepository<TribeUser, Long> {
 
     List<TribeUser> findByGroupsContaining(Long groupId);
 
-//    List<TribeUser> findByGroupId(Long groupId);
 }

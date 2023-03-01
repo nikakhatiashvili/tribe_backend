@@ -1,8 +1,5 @@
 package com.example.student.student;
 
-import com.example.student.groups.model.TribeGroup;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,16 +25,18 @@ public class TribeUser {
     @Size(min = 10, max = 100)
     private String firebaseId;
 
-
     private boolean hasCreatedGroup;
-    @ElementCollection
-    @CollectionTable(name = "user_group", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "group_id")
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<Long> groups = new HashSet<>();
 
     @NotNull
     @Size(min = 3, max = 40)
     private String name;
+
+    @NotEmpty
+    @NotNull
+    private String timezone;
 
     @NotNull
     @NotEmpty(message = "email is required")
@@ -61,6 +60,14 @@ public class TribeUser {
     public TribeUser() {
     }
 
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
     public void addGroup(Long groupId) {
         groups.add(groupId);
     }
@@ -78,7 +85,6 @@ public class TribeUser {
                 ", email='" + email + '\'' +
                 '}';
     }
-
     public Set<Long> getGroups() {
         return groups;
     }
