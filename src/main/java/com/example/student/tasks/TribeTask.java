@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -49,6 +50,8 @@ public class TribeTask {
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> completedTodayBy = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Map<String, LocalDate> completedDates = new HashMap<>();
     private LocalDateTime dateCompleted;
 
     private String comment;
@@ -66,6 +69,22 @@ public class TribeTask {
                 "}";
     }
 
+
+    public TribeTask clone() {
+        TribeTask clone = new TribeTask();
+        clone.setId(this.id);
+        clone.setName(this.name);
+        clone.setGroupId(this.groupId);
+        clone.setDescription(this.description);
+        clone.setEmail(this.email);
+        clone.setAssignedTo(new ArrayList<>(this.assignedTo));
+        clone.setForAll(this.forAll);
+        clone.setResetTime(this.resetTime);
+        clone.setCompletedDates(new HashMap<>(this.completedDates));
+        clone.setDateCompleted(this.dateCompleted);
+        clone.setComment(this.comment);
+        return clone;
+    }
 
     public TribeTask(String name, String description, Long groupId) {
         this.name = name;
@@ -90,6 +109,14 @@ public class TribeTask {
     }
     public Set<String> getCompletedTodayBy() {
         return completedTodayBy;
+    }
+
+    public Map<String, LocalDate> getCompletedDates() {
+        return completedDates;
+    }
+
+    public void setCompletedDates(Map<String, LocalDate> completedDates) {
+        this.completedDates = completedDates;
     }
 
     public void setCompletedTodayBy(Set<String> completedTodayBy) {

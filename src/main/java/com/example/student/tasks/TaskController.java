@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -30,23 +31,23 @@ public class TaskController {
     }
 
     @GetMapping("/get_tasks")
-    public TasksResponse getTasks(@RequestParam String firebaseId) throws Exception {
-        return taskService.getTasksForUserInGroup(firebaseId);
+    public TasksResponse getTasks(@RequestParam String firebaseId, @RequestParam LocalDate date) throws Exception {
+        return taskService.getTasksForUserInGroup(firebaseId, date);
     }
 
     @PostMapping("/complete_task")
-    public ResponseEntity<String> completeTask(@RequestParam String firebaseId, @RequestParam long taskId, @RequestParam String comment){
+    public ResponseEntity<String> completeTask(@RequestParam String firebaseId, @RequestParam long taskId, @RequestParam String comment, @RequestParam LocalDate date){
         try {
-            taskService.completeTask(firebaseId, taskId,comment);
+            taskService.completeTask(firebaseId, taskId, comment, date);
             return ResponseEntity.ok("Task completed successfully");
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (AlreadyExistsException e) {
-            return   ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (UnauthorizedException e) {
-            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 

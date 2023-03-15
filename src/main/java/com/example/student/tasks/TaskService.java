@@ -81,7 +81,7 @@ public class TaskService {
         taskRepository.save(tribeTask);
     }
 
-    public TasksResponse getTasksForUserInGroup(String firebaseId) throws NotFoundException {
+    public TasksResponse getTasksForUserInGroup(String firebaseId, LocalDate date) throws NotFoundException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         List<TribeGroup> groups = groupRepository.findAllById(user.getGroups());
 
@@ -91,12 +91,23 @@ public class TaskService {
         for (TribeGroup group : groups) {
             List<TribeTask> groupTasksList = tasks.stream()
                     .filter(task -> task.getGroupId().equals(group.getId()) && (task.getForAll() || task.getEmail().equals(user.getEmail())))
+                    .map(task -> {
+                        TribeTask clonedTask = task.clone();
+                        LocalDate completionDate = task.getCompletedDates().get(firebaseId);
+                        if (completionDate != null && completionDate.equals(date)) {
+                            clonedTask.getCompletedDates().put(firebaseId, date);
+                        } else {
+                            clonedTask.getCompletedDates().remove(firebaseId);
+                        }
+                        return clonedTask;
+                    })
                     .collect(Collectors.toList());
             GroupTasksResponse groupTasksResponse = new GroupTasksResponse(group.getTribeName(), groupTasksList);
             groupTasks.add(groupTasksResponse);
         }
         return new TasksResponse(groupTasks);
     }
+
     public List<TribeTask> getAllTasksForUserInGroups(TribeUser user) {
         List<TribeTask> tasks = new ArrayList<>();
         List<TribeGroup> groups = groupRepository.findAllById(user.getGroups());
@@ -106,7 +117,7 @@ public class TaskService {
         return tasks;
     }
 
-    public void completeTask(String firebaseId, long taskId, String comment) throws NotFoundException, UnauthorizedException, AlreadyExistsException {
+    public void completeTask(String firebaseId, long taskId, String comment,LocalDate date) throws NotFoundException, UnauthorizedException, AlreadyExistsException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         TribeTask task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
 
@@ -115,17 +126,23 @@ public class TaskService {
             throw new UnauthorizedException("User is not authorized to complete this task");
         }
 
-        Set<String> completedTodayBy = task.getCompletedTodayBy();
-        if (completedTodayBy.contains(firebaseId)) {
-            throw new AlreadyExistsException("Task has already been completed by this user today");
+        LocalDate completionDate = task.getCompletedDates().get(firebaseId);
+        if (completionDate != null && completionDate.equals(date)) {
+            throw new AlreadyExistsException("Task already completed for the given date");
         }
 
-        completedTodayBy.add(firebaseId);
+//        Set<String> completedTodayBy = task.getCompletedTodayBy();
+//        if (completedTodayBy.contains(firebaseId)) {
+//            throw new AlreadyExistsException("Task has already been completed by this user today");
+//        }
+
+        task.getCompletedDates().put(firebaseId, date);
+        task.setComment(comment);
+        taskRepository.save(task);
 
         taskRepository.save(task);
 
-        LocalDateTime completedTime = LocalDateTime.now();
-        CompletedTask completedTask = new CompletedTask(firebaseId, taskId, completedTime, comment);
+        CompletedTask completedTask = new CompletedTask(firebaseId, taskId, date.atStartOfDay(), comment);
         completedTaskRepository.save(completedTask);
     }
 
