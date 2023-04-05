@@ -43,7 +43,12 @@ public class GroupService {
         return groupRepository.findAll();
     }
 
-    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws Exception {
+    public List<TribeGroup> getUserGroups(String firebaseId) throws NotFoundException {
+        TribeUser user = findUserByFirebaseId(firebaseId);
+        return groupRepository.findAllById(user.getGroups());
+    }
+
+    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws NotFoundException {
         TribeGroup group = getGroupByAdminId(adminFirebaseId);
         TribeUser userToRemove = getUserByEmail(userEmail);
 
@@ -59,7 +64,8 @@ public class GroupService {
         return inviteRepository.findByUserFirebaseId(firebaseId);
     }
 
-    public void inviteUserToGroup(String adminFirebaseId, String userEmail) throws Exception {
+    public void inviteUserToGroup(String adminFirebaseId, String userEmail) throws AlreadyExistsException, NotFoundException {
+        TribeUser admin = findUserByFirebaseId(adminFirebaseId);
         TribeGroup group = getGroupByAdminId(adminFirebaseId);
         TribeUser userToAdd = getUserByEmail(userEmail);
 
@@ -67,20 +73,21 @@ public class GroupService {
             throw new AlreadyExistsException("User already belongs to this group");
         }
         Invites newInvite = new Invites(
-                group.getTribeName(), group.getTribeDescription(), userToAdd.getFirebaseId(), group.getId());
+                group.getTribeName(), group.getTribeDescription(),
+                userToAdd.getFirebaseId(), admin.getEmail(), group.getId());
         inviteRepository.save(newInvite);
     }
 
-    public void invite(Long id, Integer accept, String firebaseId) throws NotFoundException {
+    public void invite(Long id, Boolean accept, String firebaseId) throws NotFoundException {
         Invites invite = inviteRepository.
                 findInviteById(id).orElseThrow(() -> new NotFoundException("invite not found"));
 
         if (!Objects.equals(invite.getUserFirebaseId(), firebaseId))
             throw new NotFoundException("user with this invite not found");
-        if (accept == 1) {
+        if (accept) {
             addUserToGroup(invite.getGroupId(), invite.getUserFirebaseId());
             inviteRepository.delete(invite);
-        } else if (accept == -1) {
+        } else {
             inviteRepository.delete(invite);
         }
     }

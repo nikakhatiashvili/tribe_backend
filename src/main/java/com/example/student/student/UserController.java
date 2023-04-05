@@ -1,8 +1,11 @@
 package com.example.student.student;
 
+import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.student.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +27,12 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public void registerNewStudent(@Valid @RequestBody TribeUser tribeUser) throws Exception {
-        userService.signUp(tribeUser);
+    public ResponseEntity<String> registerNewStudent(@Valid @RequestBody TribeUser tribeUser) {
+        try {
+            userService.signUp(tribeUser);
+            return ResponseEntity.ok("Sign up was successful");
+        } catch (AlreadyExistsException e) {
+            return   ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
-
 }

@@ -15,14 +15,12 @@ public class TribeGroup {
     private Long id;
 
     @NotNull
-    @Size(min = 3, max = 40)
     private String tribeName;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Long> tasksIds = new HashSet<>();
 
     @NotNull
-    @Size(min = 10, max = 100)
     private String tribeDescription;
 
     @NotNull

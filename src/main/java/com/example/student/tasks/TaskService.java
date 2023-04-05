@@ -86,6 +86,13 @@ public class TaskService {
         List<TribeGroup> groups = groupRepository.findAllById(user.getGroups());
 
         List<TribeTask> tasks = getAllTasksForUserInGroups(user);
+
+        for (TribeTask task : tasks) {
+            if (task.getCompletedTodayBy().contains(firebaseId)) {
+                task.setCompleted(true);
+            }
+        }
+
         System.out.println(tasks);
         List<GroupTasksResponse> groupTasks = new ArrayList<>();
         for (TribeGroup group : groups) {
@@ -106,27 +113,32 @@ public class TaskService {
         return tasks;
     }
 
-    public void completeTask(String firebaseId, long taskId, String comment) throws NotFoundException, UnauthorizedException, AlreadyExistsException {
+    public void updateTask(String firebaseId, long taskId,boolean complete) throws NotFoundException, UnauthorizedException, AlreadyExistsException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         TribeTask task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
         TribeGroup taskGroup = groupRepository.findById(task.getGroupId()).orElseThrow(() -> new NotFoundException("Group not found"));
-        if (!user.getGroups().contains(taskGroup.getId())) {
-            throw new UnauthorizedException("User is not authorized to complete this task");
+
+        if (complete){
+            if (!user.getGroups().contains(taskGroup.getId())) {
+                throw new UnauthorizedException("User is not authorized to complete this task");
+            }
+            Set<String> completedTodayBy = task.getCompletedTodayBy();
+            if (completedTodayBy.contains(firebaseId)) {
+                throw new AlreadyExistsException("Task has already been completed by this user today");
+            }
+            completedTodayBy.add(firebaseId);
+            taskRepository.save(task);
+        }else {
+            if (!user.getGroups().contains(taskGroup.getId())) {
+                throw new UnauthorizedException("User is not authorized to complete this task");
+            }
+            Set<String> completedTodayBy = task.getCompletedTodayBy();
+            if (!completedTodayBy.contains(firebaseId)) {
+                throw new NotFoundException("user hasnt completed task yet so you cant uncompleted it yet");
+            }
+            completedTodayBy.remove(firebaseId);
+            taskRepository.save(task);
         }
-
-        Set<String> completedTodayBy = task.getCompletedTodayBy();
-        if (completedTodayBy.contains(firebaseId)) {
-            throw new AlreadyExistsException("Task has already been completed by this user today");
-        }
-
-        completedTodayBy.add(firebaseId);
-
-        taskRepository.save(task);
-
-        LocalDateTime completedTime = LocalDateTime.now();
-        CompletedTask completedTask = new CompletedTask(firebaseId, taskId, completedTime, comment);
-        completedTaskRepository.save(completedTask);
     }
 
     public List<CompletedTask> getCompletedTasks(String firebaseId) {

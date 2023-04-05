@@ -30,6 +30,9 @@ public class TribeTask {
     @Size(min = 3, max = 40)
     private String name;
 
+    @Transient
+    private boolean completed;
+
     private Long groupId;
 
     @NotNull
@@ -81,6 +84,13 @@ public class TribeTask {
 
     public TribeTask() {}
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
     public Boolean getForAll() {
         return forAll;
     }
