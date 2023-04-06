@@ -8,6 +8,5 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<TribeTask, Long> {
 
-    List<TribeTask> findByGroupIdAndAssignedToContaining(Long groupId, String firebaseId);
     List<TribeTask> findByGroupId(long groupId);
 }

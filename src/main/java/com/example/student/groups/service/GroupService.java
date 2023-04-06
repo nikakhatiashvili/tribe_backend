@@ -17,9 +17,7 @@ import java.util.Objects;
 public class GroupService {
 
     private final GroupRepository groupRepository;
-
     private final UserRepository userRepository;
-
     private final InviteRepository inviteRepository;
 
     @Autowired
@@ -41,12 +39,16 @@ public class GroupService {
         userRepository.save(user);
     }
 
-
     public List<TribeGroup> getGroups() {
         return groupRepository.findAll();
     }
 
-    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws Exception {
+    public List<TribeGroup> getUserGroups(String firebaseId) throws NotFoundException {
+        TribeUser user = findUserByFirebaseId(firebaseId);
+        return groupRepository.findAllById(user.getGroups());
+    }
+
+    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws NotFoundException {
         TribeGroup group = getGroupByAdminId(adminFirebaseId);
         TribeUser userToRemove = getUserByEmail(userEmail);
 
@@ -62,26 +64,30 @@ public class GroupService {
         return inviteRepository.findByUserFirebaseId(firebaseId);
     }
 
-    public void inviteUserToGroup(String adminFirebaseId, String userEmail) throws Exception {
+    public void inviteUserToGroup(String adminFirebaseId, String userEmail) throws AlreadyExistsException, NotFoundException {
+        TribeUser admin = findUserByFirebaseId(adminFirebaseId);
         TribeGroup group = getGroupByAdminId(adminFirebaseId);
         TribeUser userToAdd = getUserByEmail(userEmail);
 
         if (userToAdd.getGroups().contains(group.getId())) {
             throw new AlreadyExistsException("User already belongs to this group");
         }
-
-        Invites newInvite = new Invites(group.getTribeName(), group.getTribeDescription(), userToAdd.getFirebaseId(), group.getId());
+        Invites newInvite = new Invites(
+                group.getTribeName(), group.getTribeDescription(),
+                userToAdd.getFirebaseId(), admin.getEmail(), group.getId());
         inviteRepository.save(newInvite);
     }
 
-    public void invite(Long id, Integer accept, String firebaseId) throws NotFoundException {
-        Invites invite = inviteRepository.findInviteById(id).orElseThrow(() -> new NotFoundException("invite not found"));
+    public void invite(Long id, Boolean accept, String firebaseId) throws NotFoundException {
+        Invites invite = inviteRepository.
+                findInviteById(id).orElseThrow(() -> new NotFoundException("invite not found"));
+
         if (!Objects.equals(invite.getUserFirebaseId(), firebaseId))
             throw new NotFoundException("user with this invite not found");
-        if (accept == 1) {
+        if (accept) {
             addUserToGroup(invite.getGroupId(), invite.getUserFirebaseId());
             inviteRepository.delete(invite);
-        } else if (accept == -1) {
+        } else {
             inviteRepository.delete(invite);
         }
     }
@@ -94,12 +100,11 @@ public class GroupService {
         userRepository.save(userToAdd);
     }
 
-
     public List<TribeUser> getUsersInGroup(String firebaseId, Long id) throws Exception {
         TribeUser user = findUserByFirebaseId(firebaseId);
-        if (user.getGroups().contains(id)){
+        if (user.getGroups().contains(id)) {
             return userRepository.findByGroupsContaining(id);
-        }else throw new UnauthorizedException("you dont have access to this");
+        } else throw new UnauthorizedException("you dont have access to this");
     }
 
     private TribeGroup getGroupByAdminId(String adminFirebaseId) throws NotFoundException {

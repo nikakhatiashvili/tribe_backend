@@ -28,7 +28,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void signUp(TribeUser tribeUser) throws Exception {
+    public void signUp(TribeUser tribeUser) throws AlreadyExistsException {
         boolean userExists = userRepository.findUserByFirebaseId(tribeUser.getFirebaseId()).isPresent()
                 || userRepository.getUserByEmail(tribeUser.getEmail()).isPresent();
         if (userExists) {
