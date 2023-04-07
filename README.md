@@ -7,7 +7,6 @@ This Java Spring Boot application allows users to register and sign up, create a
 - [PostgreSQL] - Used as the relational database management system to store data.
 - [Hibernate] - Used as the Object Relational Mapping (ORM) framework to map objects to tables in the database.
 - [JUnit] - Used for unit testing to ensure the reliability and accuracy of the application.
-- MVC architecture
 
 ## Features
 - User registration and sign up
