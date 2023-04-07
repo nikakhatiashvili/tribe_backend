@@ -1,7 +1,7 @@
 package com.example.student.groups.exceptions;
 
 public class OkResponse {
-    private String message;
+    private final String message;
 
     public OkResponse(String message) {
 

@@ -1,4 +1,6 @@
-package com.example.student.tasks.model;
+package com.example.student.tasks.domain;
+
+import com.example.student.tasks.model.GroupTasksResponse;
 
 import java.util.List;
 

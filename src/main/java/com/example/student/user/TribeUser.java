@@ -1,4 +1,4 @@
-package com.example.student.student;
+package com.example.student.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -43,7 +43,7 @@ public class TribeUser {
     @Email(message = "Invalid email address")
     private String email;
 
-    public TribeUser(long id, String name, String email, String firebaseId,Boolean hasCreatedGroup) {
+    public TribeUser(long id, String name, String email, String firebaseId, Boolean hasCreatedGroup) {
         this.firebaseId = firebaseId;
         this.id = id;
         this.name = name;
@@ -85,6 +85,7 @@ public class TribeUser {
                 ", email='" + email + '\'' +
                 '}';
     }
+
     public Set<Long> getGroups() {
         return groups;
     }
@@ -92,6 +93,7 @@ public class TribeUser {
     public void setGroups(Set<Long> groups) {
         this.groups = groups;
     }
+
     public boolean isHasCreatedGroup() {
         return hasCreatedGroup;
     }
@@ -99,6 +101,7 @@ public class TribeUser {
     public void setHasCreatedGroup(boolean hasCreatedGroup) {
         this.hasCreatedGroup = hasCreatedGroup;
     }
+
     public long getId() {
         return id;
     }

@@ -3,11 +3,10 @@ package com.example.student.groups;
 import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.exceptions.CustomErrorResponse;
 import com.example.student.groups.exceptions.NotFoundException;
-import com.example.student.groups.exceptions.OkResponse;
 import com.example.student.groups.model.Invites;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupService;
-import com.example.student.student.TribeUser;
+import com.example.student.user.TribeUser;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("api/v1/group")
@@ -85,7 +83,6 @@ public class GroupController {
         try {
             groupService.removeUserFromGroup(firebaseId, email);
             Map<String, String> responseMap = new HashMap<>();
-
             responseMap.put("message", "removing user was successful");
             return ResponseEntity.ok(responseMap);
         } catch (NotFoundException e) {
@@ -94,13 +91,13 @@ public class GroupController {
     }
 
     @PostMapping("/invite")
-    public ResponseEntity<Object> invite(@RequestParam Long id, @RequestParam boolean accept, @RequestParam String firebaseId){
+    public ResponseEntity<Object> invite(@RequestParam Long id, @RequestParam boolean accept, @RequestParam String firebaseId) {
         try {
             groupService.invite(id, accept, firebaseId);
             Map<String, String> responseMap = new HashMap<>();
-            if (accept){
+            if (accept) {
                 responseMap.put("message", "joining group was successful");
-            }else {
+            } else {
                 responseMap.put("message", "declining group was successful");
             }
             return ResponseEntity.ok(responseMap);

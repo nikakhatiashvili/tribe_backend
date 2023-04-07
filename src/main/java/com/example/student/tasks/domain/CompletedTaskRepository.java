@@ -1,4 +1,4 @@
-package com.example.student.tasks;
+package com.example.student.tasks.domain;
 
 import com.example.student.tasks.model.CompletedTask;
 import org.springframework.data.jpa.repository.JpaRepository;

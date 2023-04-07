@@ -5,8 +5,8 @@ import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.exceptions.UnauthorizedException;
 import com.example.student.groups.model.Invites;
 import com.example.student.groups.model.TribeGroup;
-import com.example.student.student.TribeUser;
-import com.example.student.student.domain.UserRepository;
+import com.example.student.user.TribeUser;
+import com.example.student.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
