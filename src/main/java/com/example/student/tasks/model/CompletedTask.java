@@ -1,7 +1,6 @@
 package com.example.student.tasks.model;
 
 
-
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,8 @@ public class CompletedTask {
     @Column(name = "comment")
     private String comment;
 
-    public CompletedTask() {}
+    public CompletedTask() {
+    }
 
     public CompletedTask(String userId, Long taskId, LocalDateTime completedAt, String comment) {
         this.userId = userId;

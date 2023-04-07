@@ -4,14 +4,18 @@ import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.exceptions.CustomErrorResponse;
 import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.exceptions.UnauthorizedException;
+import com.example.student.tasks.data.TaskService;
+import com.example.student.tasks.domain.TasksResponse;
 import com.example.student.tasks.model.CompletedTask;
-import com.example.student.tasks.model.TasksResponse;
+import com.example.student.tasks.model.TaskCompletionMessage;
+import com.example.student.tasks.model.TribeTask;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +56,9 @@ public class TaskController {
 
     @PostMapping("/complete_task")
     public ResponseEntity<Object> updateTask(
-            @RequestParam String firebaseId, @RequestParam long taskId, @RequestParam boolean complete) {
+            @RequestParam String firebaseId, @RequestParam long taskId, @RequestParam boolean complete, @RequestParam String date) {
         try {
-            taskService.updateTask(firebaseId, taskId, complete);
+            taskService.updateTask(firebaseId, taskId, complete, date);
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "Task updated successfully");
 
@@ -67,6 +71,17 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new CustomErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CustomErrorResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/messages")
+    public List<TaskCompletionMessage> getMessages(@RequestParam String firebaseId, @RequestParam Long groupId) {
+        try {
+            return taskService.getMessages(firebaseId, groupId);
+        } catch (NotFoundException | UnauthorizedException e) {
+            throw new RuntimeException(e);
         }
     }
 

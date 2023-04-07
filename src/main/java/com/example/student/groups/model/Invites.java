@@ -19,6 +19,24 @@ public class Invites {
     @NotNull
     @Size(min = 10, max = 100)
     private String userFirebaseId;
+    private String invitedBy;
+    @NotNull
+    @Size(min = 3, max = 40)
+    private String tribeName;
+    @NotNull
+    @Size(min = 10, max = 100)
+    private String tribeDescription;
+    public Invites(String tribeName, String tribeDescription, String userFirebaseId, String invitedBy, Long groupId) {
+        this.tribeName = tribeName;
+        this.tribeDescription = tribeDescription;
+        this.userFirebaseId = userFirebaseId;
+        this.invitedBy = invitedBy;
+        this.groupId = groupId;
+    }
+
+    public Invites() {
+
+    }
 
     public String getInvitedBy() {
         return invitedBy;
@@ -26,26 +44,6 @@ public class Invites {
 
     public void setInvitedBy(String invitedBy) {
         this.invitedBy = invitedBy;
-    }
-
-    private String invitedBy;
-    @NotNull
-    @Size(min = 3, max = 40)
-    private String tribeName;
-
-    @NotNull
-    @Size(min = 10, max = 100)
-    private String tribeDescription;
-
-    public Invites(String tribeName, String tribeDescription, String userFirebaseId,String invitedBy, Long groupId) {
-        this.tribeName = tribeName;
-        this.tribeDescription = tribeDescription;
-        this.userFirebaseId = userFirebaseId;
-        this.invitedBy = invitedBy;
-        this.groupId = groupId;
-    }
-    public Invites(){
-
     }
 
     public long getGroupId() {

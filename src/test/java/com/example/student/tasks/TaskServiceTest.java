@@ -1,24 +1,14 @@
 package com.example.student.tasks;
 
-import org.junit.jupiter.api.Test;
+import com.example.student.tasks.data.TaskService;
+import com.example.student.tasks.domain.TaskRepository;
 import org.junit.runner.RunWith;
-import com.example.student.student.TribeUser;
-import com.example.student.student.domain.UserRepository;
+import com.example.student.user.domain.UserRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskServiceTest {

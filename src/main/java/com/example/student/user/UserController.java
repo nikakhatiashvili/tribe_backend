@@ -1,7 +1,7 @@
-package com.example.student.student;
+package com.example.student.user;
 
 import com.example.student.groups.exceptions.AlreadyExistsException;
-import com.example.student.student.service.UserService;
+import com.example.student.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class UserController {
             userService.signUp(tribeUser);
             return ResponseEntity.ok("Sign up was successful");
         } catch (AlreadyExistsException e) {
-            return   ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 }

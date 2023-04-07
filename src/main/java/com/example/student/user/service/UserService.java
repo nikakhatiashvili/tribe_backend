@@ -1,9 +1,9 @@
-package com.example.student.student.service;
+package com.example.student.user.service;
 
 import com.example.student.groups.exceptions.AlreadyExistsException;
 import com.example.student.groups.service.GroupRepository;
-import com.example.student.student.TribeUser;
-import com.example.student.student.domain.UserRepository;
+import com.example.student.user.TribeUser;
+import com.example.student.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;

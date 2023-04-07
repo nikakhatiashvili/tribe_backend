@@ -1,6 +1,6 @@
-package com.example.student.student.domain;
+package com.example.student.user.domain;
 
-import com.example.student.student.TribeUser;
+import com.example.student.user.TribeUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

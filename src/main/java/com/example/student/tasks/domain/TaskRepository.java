@@ -1,5 +1,6 @@
-package com.example.student.tasks;
+package com.example.student.tasks.domain;
 
+import com.example.student.tasks.model.TribeTask;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

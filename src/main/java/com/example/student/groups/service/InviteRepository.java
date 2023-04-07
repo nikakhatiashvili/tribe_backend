@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface InviteRepository extends JpaRepository<Invites, Long> {
 
     Optional<Invites> findInviteById(Long id);
+
     List<Invites> findByUserFirebaseId(String userFirebaseId);
 }

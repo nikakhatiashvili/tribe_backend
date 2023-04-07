@@ -1,15 +1,4 @@
-package com.example.student.student.data;
-
-import com.example.student.student.TribeUser;
-import com.example.student.student.domain.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+package com.example.student.user.data;
 
 //@Component
 //public class UserLoader implements CommandLineRunner {

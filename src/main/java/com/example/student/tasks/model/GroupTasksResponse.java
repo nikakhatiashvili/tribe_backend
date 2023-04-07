@@ -1,7 +1,5 @@
 package com.example.student.tasks.model;
 
-import com.example.student.tasks.TribeTask;
-
 import java.util.List;
 
 public class GroupTasksResponse {
