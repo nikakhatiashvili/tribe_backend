@@ -1,6 +1,8 @@
 package com.example.student.tasks.domain;
 
 import com.example.student.tasks.model.TaskCompletionMessage;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,5 +17,6 @@ public interface TaskCompletionMessageRepository extends JpaRepository<TaskCompl
     List<TaskCompletionMessage> findByUserIdAndStrDate(long userId, String strDate);
 
     Optional<TaskCompletionMessage> findByUserIdAndStrDateAndTaskId(long userId, String strDate, Long taskId);
-    List<TaskCompletionMessage> findAllByGroupId(Long id);
+
+    Page<TaskCompletionMessage> findAllByGroupId(Long groupId, Pageable pageable);
 }

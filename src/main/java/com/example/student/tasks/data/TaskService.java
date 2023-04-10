@@ -16,6 +16,10 @@ import com.example.student.tasks.model.TribeTask;
 import com.example.student.user.TribeUser;
 import com.example.student.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -157,10 +161,11 @@ public class TaskService {
                 .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
     }
 
-    public List<TaskCompletionMessage> getMessages(String firebaseId, Long groupId) throws NotFoundException, UnauthorizedException {
+    public Page<TaskCompletionMessage> getMessages(String firebaseId, Long groupId, int pageNumber) throws NotFoundException, UnauthorizedException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         if (user.getGroups().contains(groupId)) {
-            return taskCompletionMessageRepository.findAllByGroupId(groupId);
+            Pageable pageable = PageRequest.of(pageNumber, 20, Sort.by("date").descending());
+            return taskCompletionMessageRepository.findAllByGroupId(groupId, pageable);
         } else {
             throw new UnauthorizedException("you cant see this group-s messages");
         }

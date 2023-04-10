@@ -11,6 +11,7 @@ import com.example.student.tasks.model.TaskCompletionMessage;
 import com.example.student.tasks.model.TribeTask;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,9 +78,9 @@ public class TaskController {
     }
 
     @GetMapping("/messages")
-    public List<TaskCompletionMessage> getMessages(@RequestParam String firebaseId, @RequestParam Long groupId) {
+    public Page<TaskCompletionMessage> getMessages(@RequestParam String firebaseId, @RequestParam Long groupId, @RequestParam int pageNumber) {
         try {
-            return taskService.getMessages(firebaseId, groupId);
+            return taskService.getMessages(firebaseId, groupId,pageNumber);
         } catch (NotFoundException | UnauthorizedException e) {
             throw new RuntimeException(e);
         }
