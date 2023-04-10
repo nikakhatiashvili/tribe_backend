@@ -53,66 +53,42 @@ public class TaskService {
         this.completedTaskRepository = completedTaskRepository;
     }
 
-    @Scheduled(cron = "0 0 * * * *")
-    public void resetTasks() {
-        List<TribeUser> users = userRepository.findAll();
-
-        for (TribeUser user : users) {
-            ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of(user.getTimezone()));
-            LocalTime localTime = zonedDateTime.toLocalTime();
-
-            if (localTime.isAfter(LocalTime.parse("23:50")) || localTime.isBefore(LocalTime.parse("00:50"))) {
-                List<TribeTask> tasks = getAllTasksForUserInGroups(user);
-                System.out.println(tasks);
-                for (TribeTask task : tasks) {
-                    System.out.println(task.getCompletedTodayBy());
-                    task.getCompletedTodayBy().remove(user.getFirebaseId());
-                    taskRepository.save(task);
-                }
-            }
-        }
-    }
-
     public void createTask(String firebaseId, TribeTask tribeTask) throws NotFoundException, UnauthorizedException {
         TribeGroup group = getGroupByAdminId(firebaseId);
 
         if (tribeTask.getEmail() == null) {
             tribeTask.setForAll(true);
-        } else if (tribeTask.getEmail() != null) {
+        } else {
             TribeUser taskUser = getUserByEmail(tribeTask.getEmail());
-            if (taskUser.getGroups().contains(group.getId())) {
-                tribeTask.setEmail(tribeTask.getEmail());
-                tribeTask.setForAll(false);
-            } else {
-                throw new UnauthorizedException("the user is not in your group");
+            if (!taskUser.getGroups().contains(group.getId())) {
+                throw new UnauthorizedException("The user is not in your group");
             }
+            tribeTask.setForAll(false);
         }
 
         tribeTask.setGroupId(group.getId());
         taskRepository.save(tribeTask);
     }
 
-    public TasksResponse getTasksForUserInGroup(String firebaseId) throws NotFoundException {
+    public TasksResponse getTasksForUserInGroup(String firebaseId, String date) throws NotFoundException, ParseException {
         TribeUser user = findUserByFirebaseId(firebaseId);
-        List<TribeGroup> groups = groupRepository.findAllById(user.getGroups());
-
         List<TribeTask> tasks = getAllTasksForUserInGroups(user);
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+        Date dates = dateFormat.parse(date);
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+        String strDate = formatter.format(dates);
+        List<TaskCompletionMessage> completedTasks = taskCompletionMessageRepository.findByUserIdAndStrDate(user.getId(), strDate);
         for (TribeTask task : tasks) {
-            if (task.getCompletedTodayBy().contains(firebaseId)) {
-                task.setCompleted(true);
-            }
+            task.setCompleted(completedTasks.stream().anyMatch(t -> t.getTaskId() == task.getId()));
         }
-
-        System.out.println(tasks);
-        List<GroupTasksResponse> groupTasks = new ArrayList<>();
-        for (TribeGroup group : groups) {
-            List<TribeTask> groupTasksList = tasks.stream()
-                    .filter(task -> task.getGroupId().equals(group.getId()) && (task.getForAll() || task.getEmail().equals(user.getEmail())))
-                    .collect(Collectors.toList());
-            GroupTasksResponse groupTasksResponse = new GroupTasksResponse(group.getTribeName(), groupTasksList);
-            groupTasks.add(groupTasksResponse);
-        }
+        List<GroupTasksResponse> groupTasks = groupRepository.findAllById(user.getGroups()).stream()
+                .map(group -> {
+                    List<TribeTask> groupTasksList = tasks.stream()
+                            .filter(task -> task.getGroupId().equals(group.getId()) && (task.getForAll() || task.getEmail().equals(user.getEmail())))
+                            .collect(Collectors.toList());
+                    return new GroupTasksResponse(group.getTribeName(), groupTasksList);
+                })
+                .collect(Collectors.toList());
         return new TasksResponse(groupTasks);
     }
 
@@ -130,42 +106,36 @@ public class TaskService {
         TribeTask task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
         TribeGroup taskGroup = groupRepository.findById(task.getGroupId()).orElseThrow(() -> new NotFoundException("Group not found"));
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+        Date dates = dateFormat.parse(date);
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+        String strDate = formatter.format(dates);
+
+        if (!user.getGroups().contains(taskGroup.getId())) {
+            throw new UnauthorizedException("User is not authorized to complete this task");
+        }
+
+        Optional<TaskCompletionMessage> isCompleted = taskCompletionMessageRepository.findByUserIdAndStrDateAndTaskId(user.getId(), strDate, taskId);
+        Set<String> completedTodayBy = task.getCompletedTodayBy();
+
+
         if (complete) {
-            if (!user.getGroups().contains(taskGroup.getId())) {
-                throw new UnauthorizedException("User is not authorized to complete this task");
-            }
-            Set<String> completedTodayBy = task.getCompletedTodayBy();
-            if (completedTodayBy.contains(firebaseId)) {
+            if (isCompleted.isPresent()) {
                 throw new AlreadyExistsException("Task has already been completed by this user today");
             }
             completedTodayBy.add(firebaseId);
-            taskRepository.save(task);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-            Date dates = dateFormat.parse(date);
-            System.out.println(dates);
-            System.out.println(date);
             String str = String.format("%s Completed Task: %s", user.getName(), task.getName());
             TaskCompletionMessage message = new TaskCompletionMessage(task.getId(), user.getId(), user.getName(), dates, str, taskGroup.getId());
             taskCompletionMessageRepository.save(message);
-
         } else {
-            if (!user.getGroups().contains(taskGroup.getId())) {
-                throw new UnauthorizedException("User is not authorized to complete this task");
+            if (isCompleted.isEmpty()) {
+                throw new NotFoundException("User hasn't completed task yet, so you can't uncomplete it yet");
             }
-            Set<String> completedTodayBy = task.getCompletedTodayBy();
-            if (!completedTodayBy.contains(firebaseId)) {
-                throw new NotFoundException("user hasnt completed task yet so you cant uncompleted it yet");
-            }
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-            Date dates = dateFormat.parse(date);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-            String strDate = formatter.format(dates);
-            Optional<TaskCompletionMessage> message = taskCompletionMessageRepository
-                    .findByTaskIdAndUserIdAndStrDateAndGroupId(task.getId(), user.getId(), strDate, taskGroup.getId());
+            Optional<TaskCompletionMessage> message = taskCompletionMessageRepository.findByTaskIdAndUserIdAndStrDateAndGroupId(task.getId(), user.getId(), strDate, taskGroup.getId());
             message.ifPresent(taskCompletionMessageRepository::delete);
             completedTodayBy.remove(firebaseId);
-            taskRepository.save(task);
         }
+        taskRepository.save(task);
     }
 
     public List<CompletedTask> getCompletedTasks(String firebaseId) {

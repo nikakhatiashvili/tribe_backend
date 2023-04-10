@@ -12,5 +12,8 @@ public interface TaskCompletionMessageRepository extends JpaRepository<TaskCompl
 
     Optional<TaskCompletionMessage> findByTaskIdAndUserIdAndStrDateAndGroupId(long taskId, long userId, String strDate, Long groupId);
 
+    List<TaskCompletionMessage> findByUserIdAndStrDate(long userId, String strDate);
+
+    Optional<TaskCompletionMessage> findByUserIdAndStrDateAndTaskId(long userId, String strDate, Long taskId);
     List<TaskCompletionMessage> findAllByGroupId(Long id);
 }

@@ -50,8 +50,8 @@ public class TaskController {
     }
 
     @GetMapping("/get_tasks")
-    public TasksResponse getTasks(@RequestParam String firebaseId) throws Exception {
-        return taskService.getTasksForUserInGroup(firebaseId);
+    public TasksResponse getTasks(@RequestParam String firebaseId, @RequestParam String date) throws Exception {
+        return taskService.getTasksForUserInGroup(firebaseId,date);
     }
 
     @PostMapping("/complete_task")

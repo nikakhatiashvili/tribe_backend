@@ -9,7 +9,6 @@ import com.example.student.user.TribeUser;
 import com.example.student.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 
