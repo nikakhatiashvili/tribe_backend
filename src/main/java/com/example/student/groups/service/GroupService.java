@@ -99,6 +99,17 @@ public class GroupService {
         userRepository.save(userToAdd);
     }
 
+    public void leaveGroup(String firebaseId, Long groupId) throws NotFoundException {
+        TribeUser user = findUserByFirebaseId(firebaseId);
+        if (user.getGroups().contains(groupId)) {
+            user.removeGroup(groupId);
+            userRepository.save(user);
+        } else {
+            throw new NotFoundException("User is not a member of the group");
+        }
+    }
+
+
     public List<TribeUser> getUsersInGroup(String firebaseId, Long id) throws Exception {
         TribeUser user = findUserByFirebaseId(firebaseId);
         if (user.getGroups().contains(id)) {

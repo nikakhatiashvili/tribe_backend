@@ -51,6 +51,17 @@ public class GroupController {
         }
     }
 
+    @PostMapping("/leave_group")
+    public ResponseEntity<Object> leaveGroup(@RequestParam String firebaseId, @RequestParam Long groupId) {
+        try {
+            groupService.leaveGroup(firebaseId, groupId);
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("message", "User has successfully left the group");
+            return ResponseEntity.ok(responseMap);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CustomErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+        }
+    }
 
     @PostMapping(value = "/invite_user", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> inviteUser(@RequestParam String firebaseId, @RequestParam String email) {

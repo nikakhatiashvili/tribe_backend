@@ -164,7 +164,7 @@ public class TaskService {
     public Page<TaskCompletionMessage> getMessages(String firebaseId, Long groupId, int pageNumber) throws NotFoundException, UnauthorizedException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         if (user.getGroups().contains(groupId)) {
-            Pageable pageable = PageRequest.of(pageNumber, 20, Sort.by("date").descending());
+            Pageable pageable = PageRequest.of(pageNumber -1, 20, Sort.by("date").descending());
             return taskCompletionMessageRepository.findAllByGroupId(groupId, pageable);
         } else {
             throw new UnauthorizedException("you cant see this group-s messages");
