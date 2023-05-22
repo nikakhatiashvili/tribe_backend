@@ -34,7 +34,7 @@ public class TribeTask {
     private Boolean forAll;
     private LocalDateTime resetTime;
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> completedTodayBy = new HashSet<>();
+    private Set<Long> completedTodayBy = new HashSet<>();
     private LocalDateTime dateCompleted;
     private String comment;
 
@@ -93,20 +93,20 @@ public class TribeTask {
         this.forAll = forAll;
     }
 
-    public Set<String> getCompletedTodayBy() {
+    public Set<Long> getCompletedTodayBy() {
         return completedTodayBy;
     }
 
-    public void setCompletedTodayBy(Set<String> completedTodayBy) {
+    public void setCompletedTodayBy(Set<Long> completedTodayBy) {
         this.completedTodayBy = completedTodayBy;
     }
 
-    public void addCompletedTodayBy(String firebaseId) {
-        completedTodayBy.add(firebaseId);
+    public void addCompletedTodayBy(Long userId) {
+        completedTodayBy.add(userId);
     }
 
-    public void removeCompletedTodayBy(String firebaseId) {
-        completedTodayBy.remove(firebaseId);
+    public void removeCompletedTodayBy(Long userId) {
+        completedTodayBy.remove(userId);
     }
 
     public LocalDateTime getDateCompleted() {

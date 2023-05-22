@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<TribeUser, Long> {
 
-    Optional<TribeUser> findUserByFirebaseId(String firebaseId);
+    Optional<TribeUser> findUserById(Long id);
 
     Optional<TribeUser> getUserByEmail(String email);
 

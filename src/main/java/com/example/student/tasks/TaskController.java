@@ -33,9 +33,11 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createNewTask(@Valid @RequestBody TribeTask tribeTask, @RequestParam String firebaseId) {
+    public ResponseEntity<Object> createNewTask(
+            @Valid @RequestBody TribeTask tribeTask,
+            @RequestParam Long userId) {
         try {
-            taskService.createTask(firebaseId, tribeTask);
+            taskService.createTask(userId, tribeTask);
 
             // Create a Map to hold the JSON response
             Map<String, String> responseMap = new HashMap<>();
@@ -51,15 +53,15 @@ public class TaskController {
     }
 
     @GetMapping("/get_tasks")
-    public TasksResponse getTasks(@RequestParam String firebaseId, @RequestParam String date) throws Exception {
-        return taskService.getTasksForUserInGroup(firebaseId,date);
+    public TasksResponse getTasks(@RequestParam Long userId, @RequestParam String date) throws Exception {
+        return taskService.getTasksForUserInGroup(userId,date);
     }
 
     @PostMapping("/complete_task")
     public ResponseEntity<Object> updateTask(
-            @RequestParam String firebaseId, @RequestParam long taskId, @RequestParam boolean complete, @RequestParam String date) {
+            @RequestParam Long userId, @RequestParam long taskId, @RequestParam boolean complete, @RequestParam String date) {
         try {
-            taskService.updateTask(firebaseId, taskId, complete, date);
+            taskService.updateTask(userId, taskId, complete, date);
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "Task updated successfully");
 
@@ -78,9 +80,9 @@ public class TaskController {
     }
 
     @GetMapping("/messages")
-    public Page<TaskCompletionMessage> getMessages(@RequestParam String firebaseId, @RequestParam Long groupId, @RequestParam int pageNumber) {
+    public Page<TaskCompletionMessage> getMessages(@RequestParam Long userId, @RequestParam Long groupId, @RequestParam int pageNumber) {
         try {
-            return taskService.getMessages(firebaseId, groupId,pageNumber);
+            return taskService.getMessages(userId, groupId,pageNumber);
         } catch (NotFoundException | UnauthorizedException e) {
             throw new RuntimeException(e);
         }
@@ -92,8 +94,8 @@ public class TaskController {
 //    }
 
     @GetMapping("/completed_tasks")
-    public List<CompletedTask> getCompletedTasks(@RequestParam String firebaseId) {
-        return taskService.getCompletedTasks(firebaseId);
+    public List<CompletedTask> getCompletedTasks(@RequestParam Long userId) {
+        return taskService.getCompletedTasks(userId);
     }
 
 //    @DeleteMapping("/remove")

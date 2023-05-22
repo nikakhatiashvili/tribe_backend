@@ -21,10 +21,6 @@ public class TribeUser {
     )
     private long id;
 
-    @NotNull
-    @Size(min = 10, max = 100)
-    private String firebaseId;
-
     private boolean hasCreatedGroup;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -34,6 +30,15 @@ public class TribeUser {
     @Size(min = 3, max = 40)
     private String name;
 
+    private String  image;
+
+    //@ValidPassword
+    private String password;
+    private String username;
+    private String userTag;
+    private boolean enabled;
+    private String authority;
+
     @NotEmpty
     @NotNull
     private String timezone;
@@ -41,24 +46,34 @@ public class TribeUser {
     @NotNull
     @NotEmpty(message = "email is required")
     @Email(message = "Invalid email address")
+    @Column(name = "email", unique = true)
     private String email;
 
-    public TribeUser(long id, String name, String email, String firebaseId, Boolean hasCreatedGroup) {
-        this.firebaseId = firebaseId;
+    public TribeUser(long id, String name, String email,Boolean hasCreatedGroup) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.hasCreatedGroup = hasCreatedGroup;
     }
 
-    public TribeUser(String name, String email, String firebaseId) {
-        this.firebaseId = firebaseId;
+    public TribeUser(String name, String email,String userTag, String username) {
         this.name = name;
         this.email = email;
+        this.userTag = userTag;
+        this.username = username;
     }
 
     public TribeUser() {
     }
+
+//    public void encodePassword(String password, PasswordEncoder passwordEncoder) {
+//        this.password = passwordEncoder.encode(password);
+//    }
+//
+//    @PrePersist
+//    public void encodePasswordOnPrePersist() {
+//        this.password = new BCryptPasswordEncoder().encode(this.password);
+//    }
 
     public String getTimezone() {
         return timezone;
@@ -80,7 +95,6 @@ public class TribeUser {
     public String toString() {
         return "Student{" +
                 "id=" + id +
-                ", firebase_id='" + firebaseId +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
@@ -126,11 +140,51 @@ public class TribeUser {
         this.email = email;
     }
 
-    public String getFirebaseId() {
-        return firebaseId;
+    public String getPassword() {
+        return password;
     }
 
-    public void setFirebaseId(String firebaseId) {
-        this.firebaseId = firebaseId;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserTag() {
+        return userTag;
+    }
+
+    public void setUserTag(String userTag) {
+        this.userTag = userTag;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

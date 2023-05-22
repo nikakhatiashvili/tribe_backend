@@ -24,20 +24,19 @@ public class TribeGroup {
     private String tribeDescription;
 
     @NotNull
-    @Size(min = 10, max = 200)
-    private String adminId;
+    private Long adminId;
 
     public TribeGroup() {
     }
 
-    public TribeGroup(Long id, String tribeName, String tribeDescription, String adminId) {
+    public TribeGroup(Long id, String tribeName, String tribeDescription, Long adminId) {
         this.id = id;
         this.tribeName = tribeName;
         this.tribeDescription = tribeDescription;
         this.adminId = adminId;
     }
 
-    public TribeGroup(String tribeName, String tribeDescription, String adminId) {
+    public TribeGroup(String tribeName, String tribeDescription, Long adminId) {
         this.tribeName = tribeName;
         this.tribeDescription = tribeDescription;
         this.adminId = adminId;
@@ -75,11 +74,11 @@ public class TribeGroup {
         this.tribeDescription = tribeDescription;
     }
 
-    public String getAdminId() {
+    public Long getAdminId() {
         return adminId;
     }
 
-    public void setAdminId(String adminId) {
+    public void setAdminId(Long adminId) {
         this.adminId = adminId;
     }
 }

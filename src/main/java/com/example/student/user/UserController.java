@@ -1,6 +1,7 @@
 package com.example.student.user;
 
 import com.example.student.groups.exceptions.AlreadyExistsException;
+import com.example.student.groups.exceptions.UnauthorizedException;
 import com.example.student.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ public class UserController {
             return ResponseEntity.ok("Sign up was successful");
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

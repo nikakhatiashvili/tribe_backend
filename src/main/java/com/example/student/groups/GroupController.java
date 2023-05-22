@@ -52,9 +52,9 @@ public class GroupController {
     }
 
     @PostMapping("/leave_group")
-    public ResponseEntity<Object> leaveGroup(@RequestParam String firebaseId, @RequestParam Long groupId) {
+    public ResponseEntity<Object> leaveGroup(@RequestParam Long userId, @RequestParam Long groupId) {
         try {
-            groupService.leaveGroup(firebaseId, groupId);
+            groupService.leaveGroup(userId, groupId);
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "User has successfully left the group");
             return ResponseEntity.ok(responseMap);
@@ -64,9 +64,9 @@ public class GroupController {
     }
 
     @PostMapping(value = "/invite_user", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> inviteUser(@RequestParam String firebaseId, @RequestParam String email) {
+    public ResponseEntity<Object> inviteUser(@RequestParam Long adminId, @RequestParam String email) {
         try {
-            groupService.inviteUserToGroup(firebaseId, email);
+            groupService.inviteUserToGroup(adminId, email);
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "user invited");
 
@@ -79,20 +79,20 @@ public class GroupController {
     }
 
     @GetMapping("/groups")
-    public List<TribeGroup> getGroups(@RequestParam String firebaseId) throws NotFoundException {
-        return groupService.getUserGroups(firebaseId);
+    public List<TribeGroup> getGroups(@RequestParam Long userId) throws NotFoundException {
+        return groupService.getUserGroups(userId);
     }
 
     @GetMapping("/invites")
-    public List<Invites> addUserToGroup(@RequestParam String firebaseId) {
-        return groupService.getInvites(firebaseId);
+    public List<Invites> addUserToGroup(@RequestParam Long userId) {
+        return groupService.getInvites(userId);
     }
 
 
     @PostMapping("/removeuser")
-    public ResponseEntity<Object> removeUserFromGroup(@RequestParam String firebaseId, @RequestParam String email) {
+    public ResponseEntity<Object> removeUserFromGroup(@RequestParam Long UserId, @RequestParam String email) {
         try {
-            groupService.removeUserFromGroup(firebaseId, email);
+            groupService.removeUserFromGroup(UserId, email);
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "removing user was successful");
             return ResponseEntity.ok(responseMap);
@@ -102,9 +102,9 @@ public class GroupController {
     }
 
     @PostMapping("/invite")
-    public ResponseEntity<Object> invite(@RequestParam Long id, @RequestParam boolean accept, @RequestParam String firebaseId) {
+    public ResponseEntity<Object> invite(@RequestParam Long id, @RequestParam boolean accept, @RequestParam Long userId) {
         try {
-            groupService.invite(id, accept, firebaseId);
+            groupService.invite(id, accept, userId);
             Map<String, String> responseMap = new HashMap<>();
             if (accept) {
                 responseMap.put("message", "joining group was successful");
@@ -119,7 +119,7 @@ public class GroupController {
     }
 
     @GetMapping("/users")
-    public List<TribeUser> getUsersInGroup(@Valid @RequestParam String firebaseId, @RequestParam Long id) throws Exception {
-        return groupService.getUsersInGroup(firebaseId, id);
+    public List<TribeUser> getUsersInGroup(@Valid @RequestParam Long UserId, @RequestParam Long id) throws Exception {
+        return groupService.getUsersInGroup(UserId, id);
     }
 }

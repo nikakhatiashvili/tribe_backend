@@ -5,14 +5,8 @@ import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.exceptions.UnauthorizedException;
 import com.example.student.groups.model.TribeGroup;
 import com.example.student.groups.service.GroupRepository;
-import com.example.student.tasks.domain.CompletedTaskRepository;
-import com.example.student.tasks.domain.TaskCompletionMessageRepository;
-import com.example.student.tasks.domain.TaskRepository;
-import com.example.student.tasks.domain.TasksResponse;
-import com.example.student.tasks.model.CompletedTask;
-import com.example.student.tasks.model.GroupTasksResponse;
-import com.example.student.tasks.model.TaskCompletionMessage;
-import com.example.student.tasks.model.TribeTask;
+import com.example.student.tasks.domain.*;
+import com.example.student.tasks.model.*;
 import com.example.student.user.TribeUser;
 import com.example.student.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +30,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
+
     private final TaskCompletionMessageRepository taskCompletionMessageRepository;
 
     private final CompletedTaskRepository completedTaskRepository;
@@ -49,16 +40,18 @@ public class TaskService {
                        TaskRepository taskRepository,
                        UserRepository userRepository,
                        CompletedTaskRepository completedTaskRepository,
-                       TaskCompletionMessageRepository taskCompletionMessageRepository) {
+                       TaskCompletionMessageRepository taskCompletionMessageRepository
+                       ) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.taskRepository = taskRepository;
         this.taskCompletionMessageRepository = taskCompletionMessageRepository;
         this.completedTaskRepository = completedTaskRepository;
+       // this.taskAssignmentRepository = taskAssignmentRepository;
     }
 
-    public void createTask(String firebaseId, TribeTask tribeTask) throws NotFoundException, UnauthorizedException {
-        TribeGroup group = getGroupByAdminId(firebaseId);
+    public void createTask(Long userId, TribeTask tribeTask) throws NotFoundException, UnauthorizedException {
+        TribeGroup group = getGroupByAdminId(userId);
 
         if (tribeTask.getEmail() == null) {
             tribeTask.setForAll(true);
@@ -73,9 +66,8 @@ public class TaskService {
         tribeTask.setGroupId(group.getId());
         taskRepository.save(tribeTask);
     }
-
-    public TasksResponse getTasksForUserInGroup(String firebaseId, String date) throws NotFoundException, ParseException {
-        TribeUser user = findUserByFirebaseId(firebaseId);
+    public TasksResponse getTasksForUserInGroup(Long userId, String date) throws NotFoundException, ParseException {
+        TribeUser user = findUserByUserId(userId);
         List<TribeTask> tasks = getAllTasksForUserInGroups(user);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
         Date dates = dateFormat.parse(date);
@@ -105,8 +97,8 @@ public class TaskService {
         return tasks;
     }
 
-    public void updateTask(String firebaseId, long taskId, boolean complete, String date) throws NotFoundException, UnauthorizedException, AlreadyExistsException, ParseException {
-        TribeUser user = findUserByFirebaseId(firebaseId);
+    public void updateTask(Long userId, long taskId, boolean complete, String date) throws NotFoundException, UnauthorizedException, AlreadyExistsException, ParseException {
+        TribeUser user = findUserByUserId(userId);
         TribeTask task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
         TribeGroup taskGroup = groupRepository.findById(task.getGroupId()).orElseThrow(() -> new NotFoundException("Group not found"));
 
@@ -120,14 +112,14 @@ public class TaskService {
         }
 
         Optional<TaskCompletionMessage> isCompleted = taskCompletionMessageRepository.findByUserIdAndStrDateAndTaskId(user.getId(), strDate, taskId);
-        Set<String> completedTodayBy = task.getCompletedTodayBy();
+        Set<Long> completedTodayBy = task.getCompletedTodayBy();
 
 
         if (complete) {
             if (isCompleted.isPresent()) {
                 throw new AlreadyExistsException("Task has already been completed by this user today");
             }
-            completedTodayBy.add(firebaseId);
+            completedTodayBy.add(userId);
             String str = String.format("%s Completed Task: %s", user.getName(), task.getName());
             TaskCompletionMessage message = new TaskCompletionMessage(task.getId(), user.getId(), user.getName(), dates, str, taskGroup.getId());
             taskCompletionMessageRepository.save(message);
@@ -137,22 +129,22 @@ public class TaskService {
             }
             Optional<TaskCompletionMessage> message = taskCompletionMessageRepository.findByTaskIdAndUserIdAndStrDateAndGroupId(task.getId(), user.getId(), strDate, taskGroup.getId());
             message.ifPresent(taskCompletionMessageRepository::delete);
-            completedTodayBy.remove(firebaseId);
+            completedTodayBy.remove(userId);
         }
         taskRepository.save(task);
     }
 
-    public List<CompletedTask> getCompletedTasks(String firebaseId) {
-        return completedTaskRepository.findAllByUserId(firebaseId);
+    public List<CompletedTask> getCompletedTasks(Long userId) {
+        return completedTaskRepository.findAllByUserId(userId);
     }
 
-    private TribeGroup getGroupByAdminId(String adminFirebaseId) throws NotFoundException {
-        return groupRepository.getGroupByAdminId(adminFirebaseId)
+    private TribeGroup getGroupByAdminId(Long userId) throws NotFoundException {
+        return groupRepository.getGroupByAdminId(userId)
                 .orElseThrow(() -> new NotFoundException("Firebase ID does not match admin ID"));
     }
 
-    private TribeUser findUserByFirebaseId(String firebaseId) throws NotFoundException {
-        return userRepository.findUserByFirebaseId(firebaseId)
+    private TribeUser findUserByUserId(Long userId) throws NotFoundException {
+        return userRepository.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
@@ -161,8 +153,8 @@ public class TaskService {
                 .orElseThrow(() -> new NotFoundException("User not found with email: " + userEmail));
     }
 
-    public Page<TaskCompletionMessage> getMessages(String firebaseId, Long groupId, int pageNumber) throws NotFoundException, UnauthorizedException {
-        TribeUser user = findUserByFirebaseId(firebaseId);
+    public Page<TaskCompletionMessage> getMessages(Long userId, Long groupId, int pageNumber) throws NotFoundException, UnauthorizedException {
+        TribeUser user = findUserByUserId(userId);
         if (user.getGroups().contains(groupId)) {
             Pageable pageable = PageRequest.of(pageNumber -1, 20, Sort.by("date").descending());
             return taskCompletionMessageRepository.findAllByGroupId(groupId, pageable);

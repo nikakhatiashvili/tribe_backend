@@ -31,7 +31,7 @@ public class GroupService {
             throw new AlreadyExistsException("User has already created group");
         }
 
-        TribeUser user = findUserByFirebaseId(group.getAdminId());
+        TribeUser user = findUserById(group.getAdminId());
         TribeGroup savedTribeGroup = groupRepository.save(group);
 
         user.addGroup(savedTribeGroup.getId());
@@ -42,13 +42,13 @@ public class GroupService {
         return groupRepository.findAll();
     }
 
-    public List<TribeGroup> getUserGroups(String firebaseId) throws NotFoundException {
-        TribeUser user = findUserByFirebaseId(firebaseId);
+    public List<TribeGroup> getUserGroups(Long UserId) throws NotFoundException {
+        TribeUser user = findUserById(UserId);
         return groupRepository.findAllById(user.getGroups());
     }
 
-    public void removeUserFromGroup(String adminFirebaseId, String userEmail) throws NotFoundException {
-        TribeGroup group = getGroupByAdminId(adminFirebaseId);
+    public void removeUserFromGroup(Long UserId, String userEmail) throws NotFoundException {
+        TribeGroup group = getGroupByAdminId(UserId);
         TribeUser userToRemove = getUserByEmail(userEmail);
 
         if (userToRemove.getGroups().contains(group.getId())) {
@@ -59,13 +59,13 @@ public class GroupService {
         userRepository.save(userToRemove);
     }
 
-    public List<Invites> getInvites(String firebaseId) {
-        return inviteRepository.findByUserFirebaseId(firebaseId);
+    public List<Invites> getInvites(Long userId) {
+        return inviteRepository.findByUserBaseId(userId);
     }
 
-    public void inviteUserToGroup(String adminFirebaseId, String userEmail) throws AlreadyExistsException, NotFoundException {
-        TribeUser admin = findUserByFirebaseId(adminFirebaseId);
-        TribeGroup group = getGroupByAdminId(adminFirebaseId);
+    public void inviteUserToGroup(Long adminId, String userEmail) throws AlreadyExistsException, NotFoundException {
+        TribeUser admin = findUserById(adminId);
+        TribeGroup group = getGroupByAdminId(adminId);
         TribeUser userToAdd = getUserByEmail(userEmail);
 
         if (userToAdd.getGroups().contains(group.getId())) {
@@ -73,34 +73,34 @@ public class GroupService {
         }
         Invites newInvite = new Invites(
                 group.getTribeName(), group.getTribeDescription(),
-                userToAdd.getFirebaseId(), admin.getEmail(), group.getId());
+                userToAdd.getId(), admin.getEmail(), group.getId());
         inviteRepository.save(newInvite);
     }
 
-    public void invite(Long id, Boolean accept, String firebaseId) throws NotFoundException {
+    public void invite(Long id, Boolean accept, Long userId) throws NotFoundException {
         Invites invite = inviteRepository.
                 findInviteById(id).orElseThrow(() -> new NotFoundException("invite not found"));
 
-        if (!Objects.equals(invite.getUserFirebaseId(), firebaseId))
+        if (!Objects.equals(invite.getUserBaseId(), userId))
             throw new NotFoundException("user with this invite not found");
         if (accept) {
-            addUserToGroup(invite.getGroupId(), invite.getUserFirebaseId());
+            addUserToGroup(invite.getGroupId(), invite.getUserBaseId());
             inviteRepository.delete(invite);
         } else {
             inviteRepository.delete(invite);
         }
     }
 
-    private void addUserToGroup(Long id, String firebaseId) throws NotFoundException {
-        TribeGroup group = groupRepository.getGroupById(id)
+    private void addUserToGroup(Long UserId, Long userId) throws NotFoundException {
+        TribeGroup group = groupRepository.getGroupById(UserId)
                 .orElseThrow(() -> new NotFoundException(" ID does not match to group ID"));
-        TribeUser userToAdd = findUserByFirebaseId(firebaseId);
+        TribeUser userToAdd = findUserById(userId);
         userToAdd.addGroup(group.getId());
         userRepository.save(userToAdd);
     }
 
-    public void leaveGroup(String firebaseId, Long groupId) throws NotFoundException {
-        TribeUser user = findUserByFirebaseId(firebaseId);
+    public void leaveGroup(Long UserId, Long groupId) throws NotFoundException {
+        TribeUser user = findUserById(UserId);
         if (user.getGroups().contains(groupId)) {
             user.removeGroup(groupId);
             userRepository.save(user);
@@ -110,20 +110,20 @@ public class GroupService {
     }
 
 
-    public List<TribeUser> getUsersInGroup(String firebaseId, Long id) throws Exception {
-        TribeUser user = findUserByFirebaseId(firebaseId);
+    public List<TribeUser> getUsersInGroup(Long UserId, Long id) throws Exception {
+        TribeUser user = findUserById(UserId);
         if (user.getGroups().contains(id)) {
             return userRepository.findByGroupsContaining(id);
         } else throw new UnauthorizedException("you dont have access to this");
     }
 
-    private TribeGroup getGroupByAdminId(String adminFirebaseId) throws NotFoundException {
-        return groupRepository.getGroupByAdminId(adminFirebaseId)
+    private TribeGroup getGroupByAdminId(Long userId) throws NotFoundException {
+        return groupRepository.getGroupByAdminId(userId)
                 .orElseThrow(() -> new NotFoundException("Firebase ID does not match admin ID"));
     }
 
-    private TribeUser findUserByFirebaseId(String firebaseId) throws NotFoundException {
-        return userRepository.findUserByFirebaseId(firebaseId)
+    private TribeUser findUserById(Long userId) throws NotFoundException {
+        return userRepository.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 

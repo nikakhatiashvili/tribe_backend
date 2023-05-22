@@ -10,5 +10,5 @@ public interface InviteRepository extends JpaRepository<Invites, Long> {
 
     Optional<Invites> findInviteById(Long id);
 
-    List<Invites> findByUserFirebaseId(String userFirebaseId);
+    List<Invites> findByUserBaseId(Long userBaseId);
 }
