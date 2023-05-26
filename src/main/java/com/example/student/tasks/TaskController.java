@@ -38,8 +38,6 @@ public class TaskController {
             @RequestParam Long userId) {
         try {
             taskService.createTask(userId, tribeTask);
-
-            // Create a Map to hold the JSON response
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "Task added");
 
@@ -88,19 +86,18 @@ public class TaskController {
         }
     }
 
-    //    @DeleteMapping("/remove")
-//    public void removeHabit(@RequestParam String firebaseId, @RequestParam Long id) throws Exception {
-//        taskService.removeTask(firebaseId, id);
-//    }
-
     @GetMapping("/completed_tasks")
     public List<CompletedTask> getCompletedTasks(@RequestParam Long userId) {
         return taskService.getCompletedTasks(userId);
     }
+}
 
 //    @DeleteMapping("/remove")
 //    public void removeHabit(@RequestParam String firebaseId, @RequestParam Long id) throws Exception {
 //        taskService.removeTask(firebaseId, id);
 //    }
 
-}
+//    @DeleteMapping("/remove")
+//    public void removeHabit(@RequestParam String firebaseId, @RequestParam Long id) throws Exception {
+//        taskService.removeTask(firebaseId, id);
+//    }

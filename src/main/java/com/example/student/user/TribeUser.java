@@ -39,6 +39,8 @@ public class TribeUser {
     private boolean enabled;
     private String authority;
 
+    private String salt;
+
     @NotEmpty
     @NotNull
     private String timezone;
@@ -66,14 +68,7 @@ public class TribeUser {
     public TribeUser() {
     }
 
-//    public void encodePassword(String password, PasswordEncoder passwordEncoder) {
-//        this.password = passwordEncoder.encode(password);
-//    }
-//
-//    @PrePersist
-//    public void encodePasswordOnPrePersist() {
-//        this.password = new BCryptPasswordEncoder().encode(this.password);
-//    }
+
 
     public String getTimezone() {
         return timezone;
@@ -186,5 +181,11 @@ public class TribeUser {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getSalt() {return salt;}
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

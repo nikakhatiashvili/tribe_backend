@@ -38,4 +38,13 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/sign_in")
+    public String signIn(@Valid @RequestParam String email, @RequestParam String password){
+        try {
+            return userService.signIn(email, password);
+        } catch (UnauthorizedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
