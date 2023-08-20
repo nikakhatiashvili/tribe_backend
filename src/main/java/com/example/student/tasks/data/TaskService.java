@@ -60,20 +60,26 @@ public class TaskService {
     public void createTask(String firebaseId, TribeTask tribeTask) throws NotFoundException, UnauthorizedException {
         TribeGroup group = getGroupByAdminId(firebaseId);
 
-        if (tribeTask.getEmail() == null) {
-            tribeTask.setForAll(true);
-        } else {
-            TribeUser taskUser = getUserByEmail(tribeTask.getEmail());
-            if (!taskUser.getGroups().contains(group.getId())) {
-                throw new UnauthorizedException("The user is not in your group");
-            }
-            tribeTask.setForAll(false);
+        if (!tribeTask.getForAll()){
+            validateAssignedToUsers(group, tribeTask);
         }
-
         tribeTask.setGroupId(group.getId());
         taskRepository.save(tribeTask);
     }
 
+    private void validateAssignedToUsers(TribeGroup group, TribeTask tribeTask) throws UnauthorizedException, NotFoundException {
+        if (tribeTask.getAssignedTo().isEmpty()){
+            throw new NotFoundException("cant assign task to no one");
+        }else {
+            List<String> assignedTo = tribeTask.getAssignedTo();
+            for (String userid: assignedTo){
+                TribeUser user = findUserByFirebaseId(userid);
+                if (!user.getGroups().contains(group.getId())){
+                    throw new UnauthorizedException("One or more assigned users are not in your group");
+                }
+            }
+        }
+    }
     public TasksResponse getTasksForUserInGroup(String firebaseId, String date) throws NotFoundException, ParseException {
         TribeUser user = findUserByFirebaseId(firebaseId);
         List<TribeTask> tasks = getAllTasksForUserInGroups(user);
@@ -88,7 +94,7 @@ public class TaskService {
         List<GroupTasksResponse> groupTasks = groupRepository.findAllById(user.getGroups()).stream()
                 .map(group -> {
                     List<TribeTask> groupTasksList = tasks.stream()
-                            .filter(task -> task.getGroupId().equals(group.getId()) && (task.getForAll() || task.getEmail().equals(user.getEmail())))
+                            .filter(task -> task.getGroupId().equals(group.getId()) && (task.getForAll()) || task.getAssignedTo().contains(user.getFirebaseId()))
                             .collect(Collectors.toList());
                     return new GroupTasksResponse(group.getTribeName(), groupTasksList);
                 })

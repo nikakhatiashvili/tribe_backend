@@ -37,7 +37,6 @@ public class TaskController {
         try {
             taskService.createTask(firebaseId, tribeTask);
 
-            // Create a Map to hold the JSON response
             Map<String, String> responseMap = new HashMap<>();
             responseMap.put("message", "Task added");
 
