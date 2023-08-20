@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UserService {
@@ -47,6 +48,8 @@ public class UserService {
         if (userExists) {
             throw new AlreadyExistsException("user is taken");
         }
+
+        tribeUser.setUserTag(tribeUser.getUsername() + "#" + new Random().nextInt(99999));
         userRepository.save(tribeUser);
     }
 

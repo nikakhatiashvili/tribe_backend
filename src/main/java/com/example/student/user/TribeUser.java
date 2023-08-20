@@ -25,6 +25,9 @@ public class TribeUser {
     @Size(min = 10, max = 100)
     private String firebaseId;
 
+    private String username;
+    private String userTag;
+
     private boolean hasCreatedGroup;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -84,6 +87,22 @@ public class TribeUser {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserTag() {
+        return userTag;
+    }
+
+    public void setUserTag(String userTag) {
+        this.userTag = userTag;
     }
 
     public Set<Long> getGroups() {
