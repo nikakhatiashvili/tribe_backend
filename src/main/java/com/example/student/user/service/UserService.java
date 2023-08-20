@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -26,6 +27,18 @@ public class UserService {
     @GetMapping
     public List<TribeUser> getUsers() {
         return userRepository.findAll();
+    }
+
+    @GetMapping
+    public TribeUser getUser(String firebaseId) throws AlreadyExistsException {
+
+        Optional<TribeUser> user = userRepository.findUserByFirebaseId(firebaseId);
+
+        if (!user.isPresent()) {
+            throw new AlreadyExistsException("user does not exists");
+        }else {
+            return user.get();
+        }
     }
 
     public void signUp(TribeUser tribeUser) throws AlreadyExistsException {
