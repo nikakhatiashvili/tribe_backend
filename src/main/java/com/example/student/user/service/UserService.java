@@ -42,13 +42,8 @@ public class UserService {
         }
     }
 
-    public void signUp(TribeUser tribeUser) throws AlreadyExistsException {
-        boolean userExists = userRepository.findUserByFirebaseId(tribeUser.getFirebaseId()).isPresent()
-                || userRepository.getUserByEmail(tribeUser.getEmail()).isPresent();
-        if (userExists) {
-            throw new AlreadyExistsException("user is taken");
-        }
 
+    public void signUp(TribeUser tribeUser) throws AlreadyExistsException {
         tribeUser.setUserTag(tribeUser.getUsername() + "#" + new Random().nextInt(99999));
         userRepository.save(tribeUser);
     }
