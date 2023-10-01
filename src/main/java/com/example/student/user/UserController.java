@@ -39,6 +39,7 @@ public class UserController {
     public TribeUser getUser(@RequestParam String firebaseId) throws AlreadyExistsException {
         return userService.getUser(firebaseId);
     }
+    
 
     @PostMapping("/signup")
     public ResponseEntity<String> registerNewUser(@RequestParam String timezone,@RequestParam String username,@RequestParam String email, @RequestParam String password) {
