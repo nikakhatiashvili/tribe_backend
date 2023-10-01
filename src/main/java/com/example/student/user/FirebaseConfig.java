@@ -17,7 +17,7 @@ import java.io.InputStream;
 public class FirebaseConfig {
 
 
-    @Value(value = "classpath:config/task-manager-f7b24-firebase-adminsdk-yewpu-18e72f35bd.json")
+    @Value(value = "classpath:configs/task-manager-f7b24-firebase-adminsdk-yewpu-18e72f35bd.json")
     private Resource serviceAccountResource;
 
     @Bean
