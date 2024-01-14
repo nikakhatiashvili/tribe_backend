@@ -1,7 +1,6 @@
 package com.example.student.tasks;
 
 import com.example.student.groups.exceptions.AlreadyExistsException;
-import com.example.student.groups.exceptions.CustomErrorResponse;
 import com.example.student.groups.exceptions.NotFoundException;
 import com.example.student.groups.exceptions.UnauthorizedException;
 import com.example.student.tasks.data.TaskService;
@@ -13,13 +12,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.student.ApiResponse;
 
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/task")
@@ -33,71 +30,61 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createNewTask(@Valid @RequestBody TribeTask tribeTask, @RequestParam String firebaseId) {
+    public ApiResponse<String> createNewTask(@Valid @RequestBody TribeTask tribeTask, @RequestParam String firebaseId) {
         try {
             taskService.createTask(firebaseId, tribeTask);
 
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put("message", "Task added");
-
-            return ResponseEntity.ok(responseMap);
+            return new ApiResponse<>(HttpStatus.OK.value(), "Task added", null);
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CustomErrorResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+            return new ApiResponse<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CustomErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
         }
-
     }
 
     @GetMapping("/get_tasks")
-    public TasksResponse getTasks(@RequestParam String firebaseId, @RequestParam String date) throws Exception {
-        return taskService.getTasksForUserInGroup(firebaseId,date);
+    public ApiResponse<TasksResponse> getTasks(@RequestParam String firebaseId, @RequestParam String date) throws Exception {
+        TasksResponse tasksResponse = taskService.getTasksForUserInGroup(firebaseId, date);
+        return new ApiResponse<>(HttpStatus.OK.value(), "Tasks retrieved successfully", tasksResponse);
     }
 
     @PostMapping("/complete_task")
-    public ResponseEntity<Object> updateTask(
+    public ApiResponse<String> updateTask(
             @RequestParam String firebaseId, @RequestParam long taskId, @RequestParam boolean complete, @RequestParam String date) {
         try {
             taskService.updateTask(firebaseId, taskId, complete, date);
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put("message", "Task updated successfully");
-
-            return ResponseEntity.ok(responseMap);
+            return new ApiResponse<>(HttpStatus.OK.value(), "Task updated successfully", null);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CustomErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         } catch (AlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new CustomErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
+            return new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null);
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CustomErrorResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+            return new ApiResponse<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
 
     @GetMapping("/messages")
-    public Page<TaskCompletionMessage> getMessages(@RequestParam String firebaseId, @RequestParam Long groupId, @RequestParam int pageNumber) {
+    public ApiResponse<Page<TaskCompletionMessage>> getMessages(@RequestParam String firebaseId, @RequestParam Long groupId, @RequestParam int pageNumber) {
         try {
-            return taskService.getMessages(firebaseId, groupId,pageNumber);
+            Page<TaskCompletionMessage> messages = taskService.getMessages(firebaseId, groupId, pageNumber);
+            return new ApiResponse<>(HttpStatus.OK.value(), "Messages retrieved successfully", messages);
         } catch (NotFoundException | UnauthorizedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/completed_tasks")
+    public ApiResponse<List<CompletedTask>> getCompletedTasks(@RequestParam String firebaseId) {
+        List<CompletedTask> completedTasks = taskService.getCompletedTasks(firebaseId);
+        return new ApiResponse<>(HttpStatus.OK.value(), "Completed tasks retrieved successfully", completedTasks);
     }
 
     //    @DeleteMapping("/remove")
 //    public void removeHabit(@RequestParam String firebaseId, @RequestParam Long id) throws Exception {
 //        taskService.removeTask(firebaseId, id);
 //    }
-
-    @GetMapping("/completed_tasks")
-    public List<CompletedTask> getCompletedTasks(@RequestParam String firebaseId) {
-        return taskService.getCompletedTasks(firebaseId);
-    }
-
-//    @DeleteMapping("/remove")
-//    public void removeHabit(@RequestParam String firebaseId, @RequestParam Long id) throws Exception {
-//        taskService.removeTask(firebaseId, id);
-//    }
-
 }
