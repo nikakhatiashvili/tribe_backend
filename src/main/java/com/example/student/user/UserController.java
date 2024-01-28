@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
@@ -30,18 +31,24 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<TribeUser> getUsers() {
-        return userService.getUsers();
+    public ResponseEntity<ApiResponse<List<TribeUser>>> getUsers() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "", userService.getUsers()));
     }
 
     @GetMapping("/user")
-    public TribeUser getUser(@RequestParam String firebaseId) throws AlreadyExistsException {
-        return userService.getUser(firebaseId);
+    public ResponseEntity<ApiResponse<TribeUser>> getUser(@RequestParam String firebaseId) throws AlreadyExistsException {
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .body(new ApiResponse<>(HttpStatus.FOUND.value(), "", userService.getUser(firebaseId)));
     }
 
     @PostMapping("/signup")
-    public ApiResponse<String> registerNewUser(@RequestParam String timezone, @RequestParam String username,
-                                               @RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<ApiResponse<String>> registerNewUser(@RequestParam String timezone,
+                                                               @RequestParam String username,
+                                                               @RequestParam String email,
+                                                               @RequestParam String password) {
         try {
             UserRecord.CreateRequest createRequest = new UserRecord.CreateRequest()
                     .setEmail(email)
@@ -58,21 +65,32 @@ public class UserController {
 
             userService.signUp(user);
 
-            return new ApiResponse<>(HttpStatus.OK.value(), "Sign up was successful", null);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(HttpStatus.OK.value(), "Sign up was successful", null));
         } catch (AlreadyExistsException e) {
-            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null));
         } catch (FirebaseAuthException | IllegalArgumentException e) {
-            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), e.getLocalizedMessage(), null);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), e.getLocalizedMessage(), null));
         }
     }
 
     @PostMapping("/signin")
-    public ApiResponse<String> signin(@RequestParam String firebaseId) {
+    public ResponseEntity<ApiResponse<String>> signin(@RequestParam String firebaseId) {
         Optional<TribeUser> user = userRepository.findUserByFirebaseId(firebaseId);
         if (!user.isPresent()) {
-            return new ApiResponse<>(HttpStatus.UNAUTHORIZED.value(), "User does not exist", null);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(HttpStatus.UNAUTHORIZED.value(), "User does not exist", null));
         } else {
-            return new ApiResponse<>(HttpStatus.OK.value(), "Sign in was successful", null);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(HttpStatus.OK.value(), "Sign in was successful", null));
         }
     }
 }
+

@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,80 +28,97 @@ public class GroupController {
     }
 
     @GetMapping("/all")
-    public List<TribeGroup> getGroups() {
-        return groupService.getGroups();
+    public ResponseEntity<ApiResponse<List<TribeGroup>>> getGroups() {
+        List<TribeGroup> groups = groupService.getGroups();
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Fetched groups successfully", groups));
     }
 
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<String> createNewGroup(@Valid @RequestBody TribeGroup tribeGroup) {
+    public ResponseEntity<ApiResponse<String>> createNewGroup(@Valid @RequestBody TribeGroup tribeGroup) {
         try {
             groupService.createGroup(tribeGroup);
-            return new ApiResponse<>(HttpStatus.OK.value(), "Creating group was successful", null);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Group creation successful", null));
         } catch (NotFoundException e) {
-            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null));
         } catch (AlreadyExistsException e) {
-            return new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null));
         }
     }
 
     @PostMapping("/leave_group")
-    public ApiResponse<String> leaveGroup(@RequestParam String firebaseId, @RequestParam Long groupId) {
+    public ResponseEntity<ApiResponse<String>> leaveGroup(@RequestParam String firebaseId, @RequestParam Long groupId) {
         try {
             groupService.leaveGroup(firebaseId, groupId);
-            return new ApiResponse<>(HttpStatus.OK.value(), "User has successfully left the group", null);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Successfully left the group", null));
         } catch (NotFoundException e) {
-            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null));
         }
     }
 
     @PostMapping(value = "/invite_user", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<String> inviteUser(@RequestParam String firebaseId, @RequestParam String email) {
+    public ResponseEntity<ApiResponse<String>> inviteUser(@RequestParam String firebaseId, @RequestParam String email) {
         try {
             groupService.inviteUserToGroup(firebaseId, email);
-            return new ApiResponse<>(HttpStatus.OK.value(), "User invited", null);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "User successfully invited", null));
         } catch (NotFoundException e) {
-            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null));
         } catch (AlreadyExistsException e) {
-            return new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null));
         }
     }
 
     @GetMapping("/groups")
-    public List<TribeGroup> getGroups(@RequestParam String firebaseId) throws NotFoundException {
-        return groupService.getUserGroups(firebaseId);
+    public ResponseEntity<ApiResponse<List<TribeGroup>>> getGroups(@RequestParam String firebaseId) {
+        try {
+            List<TribeGroup> userGroups = groupService.getUserGroups(firebaseId);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Fetched user groups successfully", userGroups));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null));
+        }
     }
-
     @GetMapping("/invites")
-    public List<Invites> addUserToGroup(@RequestParam String firebaseId) {
-        return groupService.getInvites(firebaseId);
+    public ResponseEntity<ApiResponse<List<Invites>>> getGroupInvites(@RequestParam String firebaseId) {
+        List<Invites> invites = groupService.getInvites(firebaseId);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Fetched group invites successfully", invites));
     }
 
     @PostMapping("/removeuser")
-    public ApiResponse<String> removeUserFromGroup(@RequestParam String firebaseId, @RequestParam String email) {
+    public ResponseEntity<ApiResponse<String>> removeUserFromGroup(@RequestParam String firebaseId, @RequestParam String email) {
         try {
             groupService.removeUserFromGroup(firebaseId, email);
-            return new ApiResponse<>(HttpStatus.OK.value(), "Removing user was successful", null);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "User successfully removed from group", null));
         } catch (NotFoundException e) {
-            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null));
         }
     }
 
     @PostMapping("/invite")
-    public ApiResponse<String> invite(@RequestParam Long id, @RequestParam boolean accept, @RequestParam String firebaseId) {
+    public ResponseEntity<ApiResponse<String>> respondToInvite(@RequestParam Long id, @RequestParam boolean accept, @RequestParam String firebaseId) {
         try {
             groupService.invite(id, accept, firebaseId);
-            if (accept) {
-                return new ApiResponse<>(HttpStatus.OK.value(), "Joining group was successful", null);
-            } else {
-                return new ApiResponse<>(HttpStatus.OK.value(), "Declining group was successful", null);
-            }
+            String message = accept ? "Successfully joined the group" : "Declined the group invitation";
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), message, null));
         } catch (NotFoundException e) {
-            return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null));
         }
     }
 
     @GetMapping("/users")
-    public List<TribeUser> getUsersInGroup(@Valid @RequestParam String firebaseId, @RequestParam Long id) throws Exception {
-        return groupService.getUsersInGroup(firebaseId, id);
+    public ResponseEntity<ApiResponse<List<TribeUser>>> getUsersInGroup(@RequestParam String firebaseId, @RequestParam Long id) {
+        try {
+            List<TribeUser> users = groupService.getUsersInGroup(firebaseId, id);
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Fetched users in group successfully", users));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
+        }
     }
 }
